@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Motiva3</string>
+    <string name="agregar_taller">Agregar Taller</string>
+    <string name="eliminar_taller">Eliminar Taller</string>
+</resources>
