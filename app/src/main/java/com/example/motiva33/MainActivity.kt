@@ -3,51 +3,60 @@ package com.example.motiva33
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.*
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.*
+import androidx.navigation.compose.rememberNavController
 import com.example.motiva3.viewmodel.TallerViewModelFactory
-import com.tuapp.motiva3.database.TallerDao
+
+import com.tuapp.motiva3.database.InscripcionRepository
+import com.tuapp.motiva3.viewmodel.TallerViewModel
+import com.tuapp.motiva3.viewmodel.UsuarioViewModel
 import com.tuapp.motiva3.database.TallerDatabase
 import com.tuapp.motiva3.database.TallerRepository
-import com.tuapp.motiva3.pages.AgregarTallerScreen
-import com.tuapp.motiva3.pages.BuscarTallerScreen // Asegúrate de importar la pantalla de búsqueda
-import com.tuapp.motiva3.pages.HomePage
-import com.tuapp.motiva3.viewmodel.TallerViewModel
+import com.tuapp.motiva3.navigation.NavGraph // Importa el NavGraph
+import com.tuapp.motiva3.viewmodel.InscripcionViewModel
+import com.tuapp.motiva3.viewmodel.InscripcionViewModelFactory
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Configuración de la base de datos y el ViewModel
-            val db = TallerDatabase.getDatabase(applicationContext)
-            val tallerDao: TallerDao = db.tallerDao()
-            val repository = TallerRepository(tallerDao)
-            val viewModelFactory = TallerViewModelFactory(repository)
-            val viewModel: TallerViewModel = viewModel(factory = viewModelFactory)
-
-            // Configuración de la navegación
-            val navController = rememberNavController()
-            NavHost(navController = navController, startDestination = "home") {
-                composable("home") {
-                    HomePage(
-                        viewModel = viewModel,
-                        onAgregarTallerClick = {
-                            navController.navigate("agregar_taller") // Navegar a la pantalla de agregar taller
-                        },
-                        onBuscarTallerClick = { // Agregar el parámetro de búsqueda
-                            navController.navigate("buscar_taller") // Navegar a la pantalla de buscar taller
-                        }
-                    )
-                }
-                composable("agregar_taller") {
-                    AgregarTallerScreen(navController, viewModel) // Asegúrate de pasar el viewModel también
-                }
-                composable("buscar_taller") {
-                    BuscarTallerScreen(navController, viewModel) // Navegar a la pantalla de buscar taller
-                }
-            }
+            MyApp()
         }
+    }
+
+    @Composable
+    fun MyApp() {
+        // Configuración de la base de datos y los repositorios
+        val db = TallerDatabase.getDatabase(applicationContext)
+
+        // Repositorios y ViewModels
+        val tallerRepository = TallerRepository(db.tallerDao())
+        val tallerViewModel: TallerViewModel =
+                viewModel(factory = TallerViewModelFactory(tallerRepository))
+
+        // Aquí agregamos el InscripcionViewModel
+        val inscripcionRepository = InscripcionRepository(db.inscripcionDao())
+        val inscripcionViewModel: InscripcionViewModel =
+            viewModel(factory = InscripcionViewModelFactory(inscripcionRepository))
+
+        // ViewModel de Usuario, si es necesario
+        val usuarioViewModel: UsuarioViewModel = viewModel()
+
+        // Controlador de navegación
+        val navController = rememberNavController()
+
+        // Llamada al NavGraph, pasando todos los ViewModels necesarios
+        NavGraph(
+            navController = navController,
+            viewModel = tallerViewModel,
+            inscripcionViewModel = inscripcionViewModel,
+            usuarioViewModel = usuarioViewModel,
+            onInscripcionClick = {
+                // Aquí puedes manejar la navegación a la pantalla de inscripciones si es necesario
+                navController.navigate("inscripcion")
+            }
+        )
     }
 }

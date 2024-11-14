@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tuapp.motiva3.database.TallerRepository
 import com.tuapp.motiva3.modelo.Taller
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,8 @@ class TallerViewModel(private val repository: TallerRepository) : ViewModel() {
     val talleres: StateFlow<List<Taller>> = repository.obtenerTalleres()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Función para agregar un taller nuevo
+
+
     fun insertarTaller(taller: Taller) {
         viewModelScope.launch {
             repository.insertarTaller(taller)
@@ -37,8 +39,12 @@ class TallerViewModel(private val repository: TallerRepository) : ViewModel() {
         }
     }
 
+    fun inscribirTaller(taller: Taller) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+        }}
     // Función para buscar talleres basados en la consulta
     fun buscarTalleres(query: String): Flow<List<Taller>> {
         return repository.buscarTalleres(query)
     }
-}
+    }

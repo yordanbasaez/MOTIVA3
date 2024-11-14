@@ -60,8 +60,8 @@ fun BuscarTallerScreen(navController: NavHostController, viewModel: TallerViewMo
 
             LazyColumn {
                 items(talleres) { taller ->
-                    TallerItem(taller = taller, onDeleteClick = { id ->
-                        viewModel.eliminarTaller(id)
+                    TallerItem(taller = taller, onInscribirClick = { selectedTaller ->
+                        viewModel.inscribirTaller(selectedTaller)
                     })
                 }
             }
@@ -70,7 +70,7 @@ fun BuscarTallerScreen(navController: NavHostController, viewModel: TallerViewMo
 }
 
 @Composable
-fun TallerItem(taller: Taller, onDeleteClick: (Int) -> Unit) {
+fun TallerItem(taller: Taller, onInscribirClick: (Taller) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
 
     // Usamos Card para que cada taller tenga un estilo de cuadro atractivo
@@ -94,11 +94,12 @@ fun TallerItem(taller: Taller, onDeleteClick: (Int) -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = { showDialog = true },
+                onClick = { onInscribirClick(taller) },
                 modifier = Modifier.align(Alignment.End).padding(top = 4.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
             ) {
-                Text("Eliminar Taller", color = Color.White)
+                Text("Inscribirse", color = Color.White)
             }
-
-        }}}
+        }
+    }
+}
