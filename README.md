@@ -1,4 +1,4 @@
-Motiva3
+
 Objetivo del Proyecto
 Motiva3 busca ser una herramienta práctica y accesible para que los usuarios encuentren oportunidades de aprendizaje y esparcimiento en su comunidad. Al promover la participación activa en talleres,
 se busca mejorar el bienestar físico, mental y emocional de los usuarios.
