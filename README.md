@@ -1,9 +1,9 @@
 
-Objetivo del Proyecto
+Objetivo del Proyecto:
 Motiva3 busca ser una herramienta práctica y accesible para que los usuarios encuentren oportunidades de aprendizaje y esparcimiento en su comunidad. Al promover la participación activa en talleres,
 se busca mejorar el bienestar físico, mental y emocional de los usuarios.
 
-Descripción
+Descripción:
 Motiva3 es una aplicación Android diseñada para facilitar la inscripción en talleres motivacionales, deportivos, de baile y actividades similares.
 Esta herramienta tiene como objetivo fomentar un estilo de vida activo y creativo, proporcionando a los usuarios una forma sencilla de explorar y 
 participar en actividades cercanas. Además, integra un sistema basado en Google Maps para ayudar a los usuarios a localizar los talleres disponibles en su área
