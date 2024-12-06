@@ -1,5 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.Motiva3" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Tema base para la aplicación, basado en Material Light y sin ActionBar -->
+    <style name="Theme.Motiva3" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Personaliza los colores o los estilos si es necesario -->
+            <item name="colorPrimary">@color/colorPrimary</item>
+            <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+            <item name="colorAccent">@color/colorAccent</item>
+    </style>
 </resources>

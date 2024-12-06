@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Mapa de osmdroid -->
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- Campo para escribir la dirección -->
+    <EditText
+        android:id="@+id/editTextAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Escribe una dirección"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="10dp"
+        android:padding="10dp"/>
+
+    <!-- Botón para realizar la búsqueda -->
+    <Button
+        android:id="@+id/btnSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Buscar"
+        android:layout_below="@id/editTextAddress"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentEnd="true"/>
+</RelativeLayout>
