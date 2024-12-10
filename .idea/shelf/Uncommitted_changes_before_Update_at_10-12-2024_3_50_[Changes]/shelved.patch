@@ -1,0 +1,1767 @@
+Index: app/src/main/java/pages/ProfileScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.ui.screens\r\n\r\nimport android.widget.Toast\r\nimport androidx.compose.foundation.Image\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.foundation.shape.CircleShape\r\nimport androidx.compose.material.icons.Icons\r\nimport androidx.compose.material.icons.filled.AccountCircle\r\nimport androidx.compose.material.icons.filled.ExitToApp\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.*\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.draw.clip\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport androidx.navigation.NavHostController\r\nimport com.example.motiva33.R\r\nimport com.google.firebase.auth.FirebaseAuth\r\nimport com.tuapp.motiva3.viewmodel.UsuarioViewModel\r\n\r\n@OptIn(ExperimentalMaterial3Api::class)\r\n@Composable\r\nfun ProfileScreen(\r\n    modifier: Modifier = Modifier,\r\n    usuarioViewModel: UsuarioViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),\r\n    navController: NavHostController\r\n) {\r\n    val user = FirebaseAuth.getInstance().currentUser\r\n    val showDialog = remember { mutableStateOf(false) }\r\n\r\n    if (showDialog.value) {\r\n        AlertDialog(\r\n            onDismissRequest = { showDialog.value = false },\r\n            title = { Text(\"Confirmación\", fontWeight = FontWeight.Bold) },\r\n            text = { Text(\"¿Estás seguro de que deseas cerrar sesión?\") },\r\n            confirmButton = {\r\n                Button(\r\n                    onClick = {\r\n                        FirebaseAuth.getInstance().signOut()\r\n                        usuarioViewModel.loginStatus.value = false\r\n                        navController.navigate(\"login\") {\r\n                            popUpTo(\"profile\") { inclusive = true }\r\n                        }\r\n                        showDialog.value = false\r\n                    }\r\n                ) { Text(\"Sí\") }\r\n            },\r\n            dismissButton = {\r\n                Button(\r\n                    onClick = { showDialog.value = false }\r\n                ) { Text(\"No\") }\r\n            }\r\n        )\r\n    }\r\n\r\n    Column(\r\n        modifier = modifier\r\n            .fillMaxSize()\r\n            .padding(16.dp)\r\n            .background(Color(0xFFF1F1F1))\r\n    ) {\r\n        TopAppBar(\r\n            title = { Text(\"Perfil\", fontSize = 20.sp, fontWeight = FontWeight.Bold) },\r\n            colors = TopAppBarDefaults.smallTopAppBarColors(\r\n                containerColor = MaterialTheme.colorScheme.primary,\r\n                titleContentColor = MaterialTheme.colorScheme.onPrimary\r\n            )\r\n        )\r\n\r\n        Spacer(modifier = Modifier.height(24.dp))\r\n\r\n        // Foto de perfil\r\n        if (user?.photoUrl != null) {\r\n            Image(\r\n                painter = painterResource(id = R.drawable.sportlogo), // Reemplaza con el recurso que prefieras si no hay foto\r\n                contentDescription = \"Foto de perfil\",\r\n                modifier = Modifier\r\n                    .size(120.dp)\r\n                    .clip(CircleShape)\r\n                    .background(MaterialTheme.colorScheme.primary)\r\n            )\r\n        } else {\r\n            Icon(\r\n                imageVector = Icons.Default.AccountCircle,\r\n                contentDescription = \"Icono de usuario\",\r\n                modifier = Modifier\r\n                    .size(120.dp)\r\n                    .clip(CircleShape)\r\n                    .background(MaterialTheme.colorScheme.primary)\r\n            )\r\n        }\r\n\r\n        Spacer(modifier = Modifier.height(16.dp))\r\n\r\n        // Nombre y correo del usuario\r\n        if (user != null) {\r\n            Text(\r\n                text = \"Hola, ${user.displayName ?: \"Usuario\"}!\",\r\n                fontSize = 20.sp,\r\n                fontWeight = FontWeight.Bold\r\n            )\r\n            Text(\r\n                text = user.email ?: \"Correo no disponible\",\r\n                fontSize = 16.sp,\r\n                color = MaterialTheme.colorScheme.onBackground\r\n            )\r\n        } else {\r\n            Text(\r\n                text = \"No hay usuario autenticado\",\r\n                fontSize = 16.sp,\r\n                color = MaterialTheme.colorScheme.onBackground\r\n            )\r\n        }\r\n\r\n        Spacer(modifier = Modifier.height(24.dp))\r\n\r\n        // Botón para cerrar sesión\r\n        Button(\r\n            onClick = { showDialog.value = true },\r\n            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary),\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .height(48.dp)\r\n                .padding(bottom = 16.dp)\r\n        ) {\r\n            Icon(\r\n                imageVector = Icons.Default.ExitToApp,\r\n                contentDescription = \"Cerrar sesión\",\r\n                modifier = Modifier.padding(end = 8.dp)\r\n            )\r\n            Text(text = \"Cerrar Sesión\", color = MaterialTheme.colorScheme.onSecondary)\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/pages/ProfileScreen.kt b/app/src/main/java/pages/ProfileScreen.kt
+--- a/app/src/main/java/pages/ProfileScreen.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/pages/ProfileScreen.kt	(date 1733809345003)
+@@ -1,8 +1,13 @@
+-package com.tuapp.motiva3.ui.screens
+-
+-import android.widget.Toast
++import android.app.Activity
++import android.content.Context
++import android.net.Uri
++import android.os.Build
++import android.provider.MediaStore
++import androidx.activity.compose.rememberLauncherForActivityResult
++import androidx.activity.result.contract.ActivityResultContracts
+ import androidx.compose.foundation.Image
+ import androidx.compose.foundation.background
++import androidx.compose.foundation.clickable
+ import androidx.compose.foundation.layout.*
+ import androidx.compose.foundation.shape.CircleShape
+ import androidx.compose.material.icons.Icons
+@@ -28,11 +33,24 @@
+ fun ProfileScreen(
+     modifier: Modifier = Modifier,
+     usuarioViewModel: UsuarioViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+-    navController: NavHostController
++    navController: NavHostController,
++    context: Context
+ ) {
+     val user = FirebaseAuth.getInstance().currentUser
+     val showDialog = remember { mutableStateOf(false) }
+ 
++    // Manejo del selector de imágenes
++    val pickImageLauncher = rememberLauncherForActivityResult(
++        contract = ActivityResultContracts.GetContent(),
++        onResult = { uri: Uri? ->
++            uri?.let {
++                // Aquí puedes actualizar la foto de perfil con la URI de la imagen seleccionada
++                // Si quieres actualizarlo localmente (sin subirlo a Firebase) puedes almacenar esta URI en un estado
++                // o subirla a un servidor
++            }
++        }
++    )
++
+     if (showDialog.value) {
+         AlertDialog(
+             onDismissRequest = { showDialog.value = false },
+@@ -74,25 +92,30 @@
+ 
+         Spacer(modifier = Modifier.height(24.dp))
+ 
+-        // Foto de perfil
+-        if (user?.photoUrl != null) {
+-            Image(
+-                painter = painterResource(id = R.drawable.sportlogo), // Reemplaza con el recurso que prefieras si no hay foto
+-                contentDescription = "Foto de perfil",
+-                modifier = Modifier
+-                    .size(120.dp)
+-                    .clip(CircleShape)
+-                    .background(MaterialTheme.colorScheme.primary)
+-            )
+-        } else {
+-            Icon(
+-                imageVector = Icons.Default.AccountCircle,
+-                contentDescription = "Icono de usuario",
+-                modifier = Modifier
+-                    .size(120.dp)
+-                    .clip(CircleShape)
+-                    .background(MaterialTheme.colorScheme.primary)
+-            )
++        // Foto de perfil con la opción de cambiarla
++        Box(
++            contentAlignment = Alignment.Center,
++            modifier = Modifier.clickable { pickImageLauncher.launch("image/*") }
++        ) {
++            if (user?.photoUrl != null) {
++                Image(
++                    painter = painterResource(id = R.drawable.sportlogo), // Reemplaza con el recurso que prefieras si no hay foto
++                    contentDescription = "Foto de perfil",
++                    modifier = Modifier
++                        .size(120.dp)
++                        .clip(CircleShape)
++                        .background(MaterialTheme.colorScheme.primary)
++                )
++            } else {
++                Icon(
++                    imageVector = Icons.Default.AccountCircle,
++                    contentDescription = "Icono de usuario",
++                    modifier = Modifier
++                        .size(120.dp)
++                        .clip(CircleShape)
++                        .background(MaterialTheme.colorScheme.primary)
++                )
++            }
+         }
+ 
+         Spacer(modifier = Modifier.height(16.dp))
+Index: README.md
+===================================================================
+diff --git a/README.md b/README.md
+deleted file mode 100644
+--- a/README.md	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ /dev/null	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
+@@ -1,38 +0,0 @@
+-
+-Objetivo del Proyecto:
+-Motiva3 busca ser una herramienta práctica y accesible para que los usuarios encuentren oportunidades de aprendizaje y esparcimiento en su comunidad. Al promover la participación activa en talleres,
+-se busca mejorar el bienestar físico, mental y emocional de los usuarios.
+-
+-Descripción:
+-Motiva3 es una aplicación Android diseñada para facilitar la inscripción en talleres motivacionales, deportivos, de baile y actividades similares.
+-Esta herramienta tiene como objetivo fomentar un estilo de vida activo y creativo, proporcionando a los usuarios una forma sencilla de explorar y 
+-participar en actividades cercanas. Además, integra un sistema basado en Google Maps para ayudar a los usuarios a localizar los talleres disponibles en su área
+-
+-La aplicación ha sido desarrollada utilizando Jetpack Compose, lo que garantiza una experiencia de usuario moderna, fluida e intuitiva. Además, se aprovecha la integración 
+-con Firebase para gestionar la autenticación de usuarios, asegurando un inicio de sesión rápido y seguro.
+-
+-Funcionalidades
+-
+-Búsqueda de Talleres:
+-Permite a los usuarios explorar y buscar talleres según categorías como deportes, baile y actividades motivacionales.
+-
+-Inscripción en Talleres:
+-Los usuarios pueden registrarse fácilmente en los talleres de su interés mediante un flujo optimizado.
+-
+-Ubicación de Talleres:
+-Con la integración de Google Maps, la aplicación proporciona direcciones precisas a los lugares donde se desarrollan los talleres.
+-
+-Gestión de Perfil:
+-Cada usuario puede personalizar su perfil, visualizar los talleres en los que está inscrito y gestionar su información personal.
+-
+-Notificaciones Personalizadas:
+-Recordatorios para próximos talleres o actividades, asegurando que los usuarios nunca pierdan un evento importante.
+-
+-Tecnologías Usadas
+--Kotlin: Lenguaje principal para el desarrollo de la aplicación.
+--Jetpack Compose: Framework moderno para el diseño de interfaces de usuario.
+--Firebase:
+-  -Autenticación de usuarios para inicio de sesión seguro.
+-  -Firestore para almacenar datos de talleres y usuarios.
+--Google Maps SDK: Para la visualización de ubicaciones y direcciones en tiempo real.
+--Android SDK: Herramientas y librerías fundamentales para el desarrollo de la aplicación
+Index: app/src/main/java/pages/AppNavigation.kt
+===================================================================
+diff --git a/app/src/main/java/pages/AppNavigation.kt b/app/src/main/java/pages/AppNavigation.kt
+deleted file mode 100644
+--- a/app/src/main/java/pages/AppNavigation.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ /dev/null	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
+@@ -1,28 +0,0 @@
+-import androidx.compose.runtime.Composable
+-import androidx.lifecycle.viewmodel.compose.viewModel
+-import androidx.navigation.compose.rememberNavController
+-import com.tuapp.motiva3.navigation.NavGraph
+-import com.tuapp.motiva3.viewmodel.InscripcionViewModel
+-import com.tuapp.motiva3.viewmodel.TallerViewModel
+-import com.tuapp.motiva3.viewmodel.UsuarioViewModel
+-
+-@Composable
+-fun AppNavigation() {
+-    val navController = rememberNavController()
+-
+-    // Inicialización de ViewModels
+-    val inscripcionViewModel: InscripcionViewModel = viewModel()  // O usa hiltViewModel() si usas Hilt
+-    val usuarioViewModel: UsuarioViewModel = viewModel() // Inicializa el UsuarioViewModel
+-    val tallerViewModel: TallerViewModel = viewModel() // Inicializa el TallerViewModel
+-
+-    NavGraph(
+-        navController = navController,
+-        viewModel = tallerViewModel,
+-        usuarioViewModel = usuarioViewModel,
+-        inscripcionViewModel = inscripcionViewModel,  // Pasa el ViewModel aquí
+-        onInscripcionClick = {
+-            // Aquí puedes agregar cualquier lógica de manejo para las inscripciones
+-            navController.navigate("inscripcion")
+-        }
+-    )
+-}
+Index: .idea/studiobot.xml
+===================================================================
+diff --git a/.idea/studiobot.xml b/.idea/studiobot.xml
+deleted file mode 100644
+--- a/.idea/studiobot.xml	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ /dev/null	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="StudioBotProjectSettings">
+-    <option name="shareContext" value="OptedOut" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: .idea/inspectionProfiles/Project_Default.xml
+===================================================================
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+deleted file mode 100644
+--- a/.idea/inspectionProfiles/Project_Default.xml	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ /dev/null	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
+@@ -1,44 +0,0 @@
+-<component name="InspectionProjectProfileManager">
+-  <profile version="1.0">
+-    <option name="myName" value="Project Default" />
+-    <inspection_tool class="ComposePreviewDimensionRespectsLimit" enabled="true" level="WARNING" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="ComposePreviewMustBeTopLevelFunction" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="ComposePreviewNeedsComposableAnnotation" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="ComposePreviewNotSupportedInUnitTestFiles" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="GlancePreviewDimensionRespectsLimit" enabled="true" level="WARNING" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="GlancePreviewMustBeTopLevelFunction" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="GlancePreviewNeedsComposableAnnotation" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="GlancePreviewNotSupportedInUnitTestFiles" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="PreviewAnnotationInFunctionWithParameters" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="PreviewApiLevelMustBeValid" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="PreviewFontScaleMustBeGreaterThanZero" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="PreviewMultipleParameterProviders" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-    <inspection_tool class="PreviewPickerAnnotation" enabled="true" level="ERROR" enabled_by_default="true">
+-      <option name="composableFile" value="true" />
+-    </inspection_tool>
+-  </profile>
+-</component>
+\ No newline at end of file
+Index: app/src/main/java/pages/EliminarTallerScreen.kt
+===================================================================
+diff --git a/app/src/main/java/pages/EliminarTallerScreen.kt b/app/src/main/java/pages/EliminarTallerScreen.kt
+deleted file mode 100644
+--- a/app/src/main/java/pages/EliminarTallerScreen.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ /dev/null	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
+@@ -1,2 +0,0 @@
+-package pages
+-
+Index: app/src/main/java/Viewmodel/InscripcionViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.viewmodel\r\n\r\nimport androidx.lifecycle.ViewModel\r\nimport androidx.lifecycle.viewModelScope\r\nimport com.tuapp.motiva3.modelo.Inscripciones\r\nimport com.tuapp.motiva33.database.InscripcionDao\r\nimport kotlinx.coroutines.launch\r\n\r\nclass InscripcionesViewModel(private val inscripcionesDao: InscripcionDao) : ViewModel() {\r\n\r\n    fun agregarInscripcion(inscripcion: Inscripciones) {\r\n        viewModelScope.launch {\r\n            inscripcionesDao.agregarInscripcion(inscripcion)\r\n        }\r\n    }\r\n\r\n    fun obtenerInscripcionesPorUsuario(idUsuario: String, onResult: (List<Inscripciones>) -> Unit) {\r\n        viewModelScope.launch {\r\n            val inscripciones = inscripcionesDao.obtenerInscripcionesPorUsuario(idUsuario)\r\n            onResult(inscripciones)\r\n        }\r\n    }\r\n\r\n    fun eliminarInscripcion(inscripcion: Inscripciones) {\r\n        viewModelScope.launch {\r\n            inscripcionesDao.eliminarInscripcion(inscripcion)\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/Viewmodel/InscripcionViewModel.kt b/app/src/main/java/Viewmodel/InscripcionViewModel.kt
+--- a/app/src/main/java/Viewmodel/InscripcionViewModel.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/Viewmodel/InscripcionViewModel.kt	(date 1733493284000)
+@@ -1,29 +1,46 @@
+ package com.tuapp.motiva3.viewmodel
+ 
++import androidx.compose.runtime.mutableStateOf
++import androidx.lifecycle.LiveData
+ import androidx.lifecycle.ViewModel
+ import androidx.lifecycle.viewModelScope
++import com.tuapp.motiva3.database.InscripcionRepository
++import com.tuapp.motiva3.modelo.InscripcionConTaller
+ import com.tuapp.motiva3.modelo.Inscripciones
+-import com.tuapp.motiva33.database.InscripcionDao
++import kotlinx.coroutines.flow.Flow
+ import kotlinx.coroutines.launch
+ 
+-class InscripcionesViewModel(private val inscripcionesDao: InscripcionDao) : ViewModel() {
++class InscripcionViewModel(private val inscripcionRepository: InscripcionRepository) : ViewModel() {
+ 
+-    fun agregarInscripcion(inscripcion: Inscripciones) {
+-        viewModelScope.launch {
+-            inscripcionesDao.agregarInscripcion(inscripcion)
+-        }
+-    }
++    // Estado que mantiene el mensaje de éxito o error
++    var estadoInscripcion = mutableStateOf<String?>(null)
++        private set
+ 
+-    fun obtenerInscripcionesPorUsuario(idUsuario: String, onResult: (List<Inscripciones>) -> Unit) {
++    // Inscribir un usuario en un taller
++    fun inscribirUsuarioEnTaller(tallerId: Int, usuarioId: String) {
+         viewModelScope.launch {
+-            val inscripciones = inscripcionesDao.obtenerInscripcionesPorUsuario(idUsuario)
+-            onResult(inscripciones)
++            try {
++                val existeInscripcion = inscripcionRepository.existeInscripcion(usuarioId, tallerId)
++                if (!existeInscripcion) {
++                    val inscripcion = Inscripciones(idTaller = tallerId, idUsuario = usuarioId)
++                    inscripcionRepository.insertarInscripcion(inscripcion)
++                    estadoInscripcion.value = "Inscripción exitosa"
++                } else {
++                    estadoInscripcion.value = "Ya estás inscrito en este taller"
++                }
++            } catch (e: Exception) {
++                estadoInscripcion.value = "Error al inscribirse: ${e.message}"
++            }
+         }
+     }
+ 
+-    fun eliminarInscripcion(inscripcion: Inscripciones) {
+-        viewModelScope.launch {
+-            inscripcionesDao.eliminarInscripcion(inscripcion)
+-        }
++    // Obtener las inscripciones con los detalles del taller
++    fun getInscripcionesConTaller(usuarioId: String): LiveData<List<InscripcionConTaller>> {
++        return inscripcionRepository.obtenerInscripcionesConTaller(usuarioId)
++    }
++
++    // Obtener las inscripciones por usuario
++    fun obtenerInscripcionesPorUsuario(usuarioId: String): Flow<List<Inscripciones>> {
++        return inscripcionRepository.obtenerInscripcionesPorUsuario(usuarioId)
+     }
+ }
+Index: app/src/main/java/Viewmodel/TallerViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.viewmodel\r\n\r\nimport androidx.lifecycle.ViewModel\r\nimport androidx.lifecycle.viewModelScope\r\nimport com.tuapp.motiva3.database.TallerRepository\r\nimport com.tuapp.motiva3.modelo.Taller\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.flow.Flow\r\nimport kotlinx.coroutines.flow.SharingStarted\r\nimport kotlinx.coroutines.flow.StateFlow\r\nimport kotlinx.coroutines.flow.flow\r\nimport kotlinx.coroutines.flow.map\r\nimport kotlinx.coroutines.flow.stateIn\r\nimport kotlinx.coroutines.launch\r\nclass TallerViewModel(private val repository: TallerRepository) : ViewModel() {\r\n    // Flow que expone la lista de talleres desde el repositorio\r\n    val talleres: StateFlow<List<Taller>> = repository.obtenerTalleres()\r\n        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())\r\n\r\n\r\n\r\n    fun insertarTaller(taller: Taller) {\r\n        viewModelScope.launch {\r\n            repository.insertarTaller(taller)\r\n        }\r\n    }\r\n\r\n    // Función para editar un taller\r\n    fun editarTaller(taller: Taller) {\r\n        viewModelScope.launch {\r\n            repository.insertarTaller(taller) // Reemplaza el taller existente\r\n        }\r\n    }\r\n\r\n    // Función para eliminar un taller por su ID\r\n    fun eliminarTaller(tallerId: Int) {\r\n        viewModelScope.launch {\r\n            repository.eliminarTallerPorId(tallerId)\r\n        }\r\n    }\r\n\r\n    fun inscribirTaller(taller: Taller) {\r\n        viewModelScope.launch(Dispatchers.IO) {\r\n\r\n        }}\r\n    // Función para buscar talleres basados en la consulta\r\n    fun buscarTalleres(query: String): Flow<List<Taller>> {\r\n        return repository.buscarTalleres(query)\r\n    }\r\n    }\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/Viewmodel/TallerViewModel.kt b/app/src/main/java/Viewmodel/TallerViewModel.kt
+--- a/app/src/main/java/Viewmodel/TallerViewModel.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/Viewmodel/TallerViewModel.kt	(date 1732566488000)
+@@ -4,47 +4,38 @@
+ import androidx.lifecycle.viewModelScope
+ import com.tuapp.motiva3.database.TallerRepository
+ import com.tuapp.motiva3.modelo.Taller
+-import kotlinx.coroutines.Dispatchers
+-import kotlinx.coroutines.flow.Flow
+-import kotlinx.coroutines.flow.SharingStarted
+ import kotlinx.coroutines.flow.StateFlow
+-import kotlinx.coroutines.flow.flow
+-import kotlinx.coroutines.flow.map
++import kotlinx.coroutines.flow.SharingStarted
+ import kotlinx.coroutines.flow.stateIn
+ import kotlinx.coroutines.launch
++
+ class TallerViewModel(private val repository: TallerRepository) : ViewModel() {
++
+     // Flow que expone la lista de talleres desde el repositorio
+     val talleres: StateFlow<List<Taller>> = repository.obtenerTalleres()
+         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+ 
+-
+-
++    // Función para agregar un taller nuevo
+     fun insertarTaller(taller: Taller) {
+         viewModelScope.launch {
+-            repository.insertarTaller(taller)
++            repository.insertarTaller(taller) // Inserta un nuevo taller en la base de datos
+         }
+     }
+ 
+-    // Función para editar un taller
++    // Función para editar un taller (modificar un taller existente)
+     fun editarTaller(taller: Taller) {
+         viewModelScope.launch {
+-            repository.insertarTaller(taller) // Reemplaza el taller existente
++            repository.editarTaller(taller) // Deberías tener una función para editar el taller en el repositorio
+         }
+     }
+ 
+     // Función para eliminar un taller por su ID
+     fun eliminarTaller(tallerId: Int) {
+         viewModelScope.launch {
+-            repository.eliminarTallerPorId(tallerId)
++            repository.eliminarTallerPorId(tallerId) // Elimina un taller por su ID
+         }
+     }
+ 
+-    fun inscribirTaller(taller: Taller) {
+-        viewModelScope.launch(Dispatchers.IO) {
+-
+-        }}
+     // Función para buscar talleres basados en la consulta
+-    fun buscarTalleres(query: String): Flow<List<Taller>> {
+-        return repository.buscarTalleres(query)
+-    }
+-    }
++    fun buscarTalleres(query: String) = repository.buscarTalleres(query)
++}
+Index: app/src/main/java/com/example/motiva33/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.motiva33\r\n\r\nimport android.content.Intent\r\nimport android.os.Bundle\r\nimport androidx.activity.ComponentActivity\r\nimport androidx.activity.compose.setContent\r\nimport androidx.compose.foundation.layout.Box\r\nimport androidx.compose.foundation.layout.Column\r\nimport androidx.compose.foundation.layout.fillMaxWidth\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.material3.Button\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.runtime.remember\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.lifecycle.viewmodel.compose.viewModel\r\nimport androidx.navigation.compose.rememberNavController\r\nimport com.example.motiva3.viewmodel.TallerViewModelFactory\r\nimport com.tuapp.motiva3.database.InscripcionRepository\r\nimport com.tuapp.motiva3.viewmodel.TallerViewModel\r\nimport com.tuapp.motiva3.viewmodel.UsuarioViewModel\r\nimport com.tuapp.motiva3.database.TallerDatabase\r\nimport com.tuapp.motiva3.database.TallerRepository\r\nimport com.tuapp.motiva3.navigation.NavGraph // Importa el NavGraph\r\nimport com.tuapp.motiva3.viewmodel.InscripcionViewModel\r\nimport com.tuapp.motiva3.viewmodel.InscripcionViewModelFactory\r\n\r\nclass MainActivity : ComponentActivity() {\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        setContent {\r\n            MyApp()\r\n        }\r\n    }\r\n\r\n    @Composable\r\n    fun MyApp() {\r\n        // Configuración de la base de datos y los repositorios\r\n        val db = TallerDatabase.getDatabase(applicationContext)\r\n\r\n        // Repositorios y ViewModels\r\n        val tallerRepository = TallerRepository(db.tallerDao())\r\n        val tallerViewModel: TallerViewModel =\r\n            viewModel(factory = TallerViewModelFactory(tallerRepository))\r\n\r\n        // InscripcionViewModel\r\n        val inscripcionRepository = InscripcionRepository(db.inscripcionDao())\r\n        val inscripcionViewModel: InscripcionViewModel =\r\n            viewModel(factory = InscripcionViewModelFactory(inscripcionRepository))\r\n\r\n        // UsuarioViewModel\r\n        val usuarioViewModel: UsuarioViewModel = viewModel()\r\n\r\n        // Controlador de navegación\r\n        val navController = rememberNavController()\r\n\r\n        // Llamada al NavGraph\r\n        NavGraph(\r\n            navController = navController,\r\n            viewModel = tallerViewModel,\r\n            inscripcionViewModel = inscripcionViewModel,\r\n            usuarioViewModel = usuarioViewModel\r\n        )\r\n\r\n        // Verifica si estás en la pantalla de login\r\n        val currentScreen = navController.currentBackStackEntry?.destination?.route\r\n\r\n        // Aquí añadimos un botón para abrir MapActivity\r\n        Column(\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(16.dp) // Margen alrededor del contenido\r\n        ) {\r\n            // Solo muestra el botón si no estamos en la pantalla de login\r\n            if (currentScreen != \"LoginPage\") {  // Ajusta \"login_screen_route\" al nombre real de la ruta de login\r\n                // Botón en la parte superior derecha\r\n                Box(\r\n                    modifier = Modifier\r\n                        .fillMaxWidth() // Ocupa todo el ancho disponible\r\n                        .padding(top = 16.dp), // Espaciado desde la parte superior\r\n                    contentAlignment = Alignment.TopEnd // Alineación en la parte superior derecha\r\n                ) {\r\n                    Button(onClick = {\r\n                        // Crear el Intent para abrir MapActivity\r\n                        val intent = Intent(this@MainActivity, MapActivity::class.java)\r\n                        startActivity(intent)\r\n                    }) {\r\n                        Text(text = \"Abrir Mapa\")\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/motiva33/MainActivity.kt b/app/src/main/java/com/example/motiva33/MainActivity.kt
+--- a/app/src/main/java/com/example/motiva33/MainActivity.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/com/example/motiva33/MainActivity.kt	(date 1733811975250)
+@@ -11,7 +11,6 @@
+ import androidx.compose.material3.Button
+ import androidx.compose.material3.Text
+ import androidx.compose.runtime.Composable
+-import androidx.compose.runtime.remember
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.unit.dp
+@@ -23,10 +22,11 @@
+ import com.tuapp.motiva3.viewmodel.UsuarioViewModel
+ import com.tuapp.motiva3.database.TallerDatabase
+ import com.tuapp.motiva3.database.TallerRepository
+-import com.tuapp.motiva3.navigation.NavGraph // Importa el NavGraph
++import com.tuapp.motiva3.navigation.NavGraph
+ import com.tuapp.motiva3.viewmodel.InscripcionViewModel
+ import com.tuapp.motiva3.viewmodel.InscripcionViewModelFactory
+ 
++
+ class MainActivity : ComponentActivity() {
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    alias(libs.plugins.android.application)\r\n    alias(libs.plugins.kotlin.android)\r\n    id(\"kotlin-kapt\")\r\n    id(\"com.google.gms.google-services\")\r\n}\r\n\r\nandroid {\r\n    namespace = \"com.example.motiva33\"\r\n    compileSdk = 34\r\n\r\n    defaultConfig {\r\n        applicationId = \"com.example.motiva33\"\r\n        minSdk = 24\r\n        targetSdk = 34\r\n        versionCode = 1\r\n        versionName = \"1.0\"\r\n\r\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\r\n        vectorDrawables {\r\n            useSupportLibrary = true\r\n        }\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            isMinifyEnabled = false\r\n            proguardFiles(\r\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\r\n                \"proguard-rules.pro\"\r\n            )\r\n        }\r\n    }\r\n    compileOptions {\r\n        sourceCompatibility = JavaVersion.VERSION_1_8\r\n        targetCompatibility = JavaVersion.VERSION_1_8\r\n    }\r\n    kotlinOptions {\r\n        jvmTarget = \"1.8\"\r\n    }\r\n    buildFeatures {\r\n        compose = true\r\n    }\r\n    composeOptions {\r\n        kotlinCompilerExtensionVersion = \"1.5.1\"\r\n    }\r\n    packaging {\r\n        resources {\r\n            excludes += \"/META-INF/{AL2.0,LGPL2.1}\"\r\n        }\r\n    }\r\n}\r\n\r\ndependencies {\r\n    // Jetpack Compose & Architecture Components\r\n    implementation(\"androidx.compose.runtime:runtime-livedata:1.0.5\")\r\n    implementation(\"androidx.lifecycle:lifecycle-runtime-ktx:2.6.0\")\r\n    implementation(\"org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2\")\r\n    implementation(\"org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2\")\r\n    implementation(\"androidx.compose.material3:material3:1.2.0-alpha01\")\r\n    implementation(\"androidx.navigation:navigation-compose:2.5.3\")\r\n\r\n    // Firebase Authentication & Firestore\r\n    implementation(platform(\"com.google.firebase:firebase-bom:33.5.1\"))\r\n    implementation(\"com.google.firebase:firebase-auth-ktx\")\r\n    implementation(\"com.google.firebase:firebase-analytics-ktx\")\r\n    implementation(\"com.google.firebase:firebase-firestore-ktx\")\r\n\r\n    // Google Sign-In\r\n    implementation(\"com.google.android.gms:play-services-auth:20.4.1\")\r\n\r\n    // Lifecycle ViewModel Compose\r\n    implementation(\"androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1\")\r\n    implementation(\"androidx.lifecycle:lifecycle-runtime-ktx:2.5.1\")\r\n\r\n    // Core & Activity Compose Libraries\r\n    implementation(libs.androidx.core.ktx)\r\n    implementation(libs.androidx.lifecycle.runtime.ktx)\r\n    implementation(libs.androidx.activity.compose)\r\n    implementation(platform(libs.androidx.compose.bom))\r\n    implementation(libs.androidx.ui)\r\n    implementation(libs.androidx.ui.graphics)\r\n    implementation(libs.androidx.ui.tooling.preview)\r\n    implementation(libs.androidx.material3)\r\n    implementation(libs.androidx.appcompat)\r\n    implementation(libs.androidx.storage)\r\n\r\n    // Room Database\r\n    val room_version = \"2.6.1\"\r\n    implementation(\"androidx.room:room-runtime:$room_version\")\r\n    kapt(\"androidx.room:room-compiler:$room_version\")\r\n    implementation(\"androidx.room:room-ktx:$room_version\")\r\n\r\n    // Testing Libraries\r\n    testImplementation(libs.junit)\r\n    androidTestImplementation(libs.androidx.junit)\r\n    androidTestImplementation(libs.androidx.espresso.core)\r\n    androidTestImplementation(platform(libs.androidx.compose.bom))\r\n    androidTestImplementation(libs.androidx.ui.test.junit4)\r\n\r\n    // Debug Libraries\r\n    debugImplementation(libs.androidx.ui.tooling)\r\n    debugImplementation(libs.androidx.ui.test.manifest)\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/build.gradle.kts	(date 1733808990067)
+@@ -65,10 +65,18 @@
+     implementation("com.google.firebase:firebase-auth-ktx")
+     implementation("com.google.firebase:firebase-analytics-ktx")
+     implementation("com.google.firebase:firebase-firestore-ktx")
+-
++    implementation ("androidx.activity:activity-ktx:1.6.0") // Para ActivityResultContracts
+     // Google Sign-In
+     implementation("com.google.android.gms:play-services-auth:20.4.1")
+ 
++    // retrofit
++    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
++    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
++    // OpenStreetMap
++    implementation("org.osmdroid:osmdroid-android:6.1.10")
++
++
++
+     // Lifecycle ViewModel Compose
+     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+@@ -84,6 +92,7 @@
+     implementation(libs.androidx.material3)
+     implementation(libs.androidx.appcompat)
+     implementation(libs.androidx.storage)
++    implementation(libs.play.services.maps)
+ 
+     // Room Database
+     val room_version = "2.6.1"
+Index: app/src/main/java/pages/AgregarTallerScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package pages\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/pages/AgregarTallerScreen.kt b/app/src/main/java/pages/AgregarTallerScreen.kt
+--- a/app/src/main/java/pages/AgregarTallerScreen.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/pages/AgregarTallerScreen.kt	(date 1733356802000)
+@@ -1,2 +1,191 @@
+-package pages
++
++
++package com.tuapp.motiva3.pages
++
++
++import androidx.compose.foundation.background
++import androidx.compose.foundation.layout.*
++import androidx.compose.foundation.text.KeyboardOptions
++import androidx.compose.material.icons.Icons
++import androidx.compose.material.icons.filled.ArrowBack
++import androidx.compose.material3.*
++import androidx.compose.runtime.*
++import androidx.compose.ui.Alignment
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.shadow
++import androidx.compose.ui.graphics.Brush
++import androidx.compose.ui.graphics.Color
++
++import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.text.input.KeyboardType
++import androidx.compose.ui.text.input.TextFieldValue
++import androidx.compose.ui.unit.dp
++import androidx.navigation.NavHostController
++import com.tuapp.motiva3.modelo.Taller
++import com.tuapp.motiva3.viewmodel.TallerViewModel
++
++
++
++
++
++
++
++
++@OptIn(ExperimentalMaterial3Api::class)
++@Composable
++fun AgregarTallerScreen(navController: NavHostController, viewModel: TallerViewModel) {
++    var nombreTaller by remember { mutableStateOf(TextFieldValue("")) }
++    var descripcion by remember { mutableStateOf(TextFieldValue("")) }
++    var precio by remember { mutableStateOf(TextFieldValue("")) }
++    var ubicacion by remember { mutableStateOf(TextFieldValue("")) }
++
++
++    val tealColor = Color(0xFF009688)
++    val lightGrayColor = Color(0xFFD0D0D0)
++
++    Scaffold(
++        topBar = {
++            TopAppBar(
++                title = { Text("Agregar Taller") },
++                navigationIcon = {
++                    IconButton(onClick = { navController.popBackStack() }) {
++                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
++                    }
++                },
++                colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = tealColor) // Teal como color de fondo
++            )
++        }
++    ) { paddingValues ->
++
++
++        val backgroundBrush = Brush.verticalGradient(
++            colors = listOf(
++                tealColor.copy(alpha = 0.3f),
++                tealColor.copy(alpha = 0.1f)
++            )
++        )
++
++        Column(
++            modifier = Modifier
++                .fillMaxSize()
++                .background(backgroundBrush)
++                .padding(paddingValues)
++                .padding(40.dp),
++            horizontalAlignment = Alignment.CenterHorizontally
++        ) {
++            // Título
++            Text(
++                text = "Ingrese los detalles del Taller",
++                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
++                color = tealColor,
++                modifier = Modifier.padding(bottom = 24.dp)
++            )
++
++
++            OutlinedTextField(
++                value = nombreTaller,
++                onValueChange = { nombreTaller = it },
++                label = { Text("Nombre del Taller", color = tealColor) },
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .padding(bottom = 16.dp)
++                    .shadow(4.dp, MaterialTheme.shapes.medium)
++                    .background(MaterialTheme.colorScheme.surface),
++                colors = TextFieldDefaults.outlinedTextFieldColors(
++                    focusedBorderColor = tealColor,
++                    unfocusedBorderColor = lightGrayColor.copy(alpha = 0.5f),
++                    containerColor = MaterialTheme.colorScheme.surface,
++                    focusedTextColor = MaterialTheme.colorScheme.onSurface
++                ),
++                shape = MaterialTheme.shapes.medium,
++            )
++
++
++            OutlinedTextField(
++                value = descripcion,
++                onValueChange = { descripcion = it },
++                label = { Text("Descripción", color = tealColor) },
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .padding(bottom = 16.dp)
++                    .shadow(4.dp, MaterialTheme.shapes.medium)
++                    .background(MaterialTheme.colorScheme.surface),
++                colors = TextFieldDefaults.outlinedTextFieldColors(
++                    focusedBorderColor = tealColor,
++                    unfocusedBorderColor = lightGrayColor.copy(alpha = 0.5f),
++                    containerColor = MaterialTheme.colorScheme.surface,
++                    focusedTextColor = MaterialTheme.colorScheme.onSurface
++                ),
++                shape = MaterialTheme.shapes.medium,
++            )
++
++
++            OutlinedTextField(
++                value = precio,
++                onValueChange = { precio = it },
++                label = { Text("Precio", color = tealColor) },
++                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .padding(bottom = 16.dp)
++                    .shadow(4.dp, MaterialTheme.shapes.medium)
++                    .background(MaterialTheme.colorScheme.surface),
++                colors = TextFieldDefaults.outlinedTextFieldColors(
++                    focusedBorderColor = tealColor,
++                    unfocusedBorderColor = lightGrayColor.copy(alpha = 0.5f),
++                    containerColor = MaterialTheme.colorScheme.surface,
++                    focusedTextColor = MaterialTheme.colorScheme.onSurface
++                ),
++                shape = MaterialTheme.shapes.medium,
++            )
++
++
++            OutlinedTextField(
++                value = ubicacion,
++                onValueChange = { ubicacion = it },
++                label = { Text("Ubicación", color = tealColor) },
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .padding(bottom = 32.dp)
++                    .shadow(4.dp, MaterialTheme.shapes.medium)
++                    .background(MaterialTheme.colorScheme.surface),
++                colors = TextFieldDefaults.outlinedTextFieldColors(
++                    focusedBorderColor = tealColor,
++                    unfocusedBorderColor = lightGrayColor.copy(alpha = 0.5f),
++                    containerColor = MaterialTheme.colorScheme.surface,
++                    focusedTextColor = MaterialTheme.colorScheme.onSurface
++                ),
++                shape = MaterialTheme.shapes.medium,
++            )
++
++
++            Button(
++                onClick = {
++                    if (nombreTaller.text.isNotBlank() && descripcion.text.isNotBlank() && precio.text.isNotBlank() && ubicacion.text.isNotBlank()) {
++                        val nuevoTaller = Taller(
++                            nombreTaller = nombreTaller.text,
++                            descripcion = descripcion.text,
++                            precio = precio.text.toDouble(),
++                            ubicacion = ubicacion.text
++                        )
++                        viewModel.insertarTaller(nuevoTaller)
++                        navController.popBackStack()
++                    }
++                },
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .padding(horizontal = 32.dp),
++                colors = ButtonDefaults.buttonColors(containerColor = tealColor),
++                shape = MaterialTheme.shapes.large
++            ) {
++                Text("Agregar Taller", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimary)
++            }
++        }
++    }
++}
++
++
++
++
++
+ 
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\">\r\n\r\n    <!-- Permisos necesarios para la ubicación -->\r\n    <uses-permission android:name=\"android.permission.INTERNET\" />\r\n    <uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />\r\n    <uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\" />\r\n\r\n    <!-- Configuración de la aplicación -->\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:dataExtractionRules=\"@xml/data_extraction_rules\"\r\n        android:fullBackupContent=\"@xml/backup_rules\"\r\n        android:icon=\"@drawable/sportlogo\"\r\n        android:label=\"@string/app_name\"\r\n        android:roundIcon=\"@drawable/sportlogo\"\r\n        android:supportsRtl=\"true\"\r\n        android:theme=\"@style/Theme.Motiva3\"\r\n        tools:targetApi=\"31\">\r\n\r\n        <!-- Clave de API para Google Maps (si decides usarlo junto con OpenStreetMap) -->\r\n        <meta-data\r\n            android:name=\"com.google.android.geo.API_KEY\"\r\n            android:value=\"AIzaSyBby54cqARaHB_yU0S8e89nFqEca8kvPu0\" />\r\n\r\n        <!-- MainActivity: actividad principal de la app -->\r\n        <activity\r\n            android:name=\".MainActivity\"\r\n            android:exported=\"true\"\r\n            android:label=\"@string/app_name\"\r\n            android:theme=\"@style/Theme.Motiva3\">\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n        </activity>\r\n\r\n        <activity\r\n            android:name=\".MapActivity\"\r\n            android:label=\"Mapa Taller\"\r\n            android:theme=\"@style/Theme.AppCompat.Light.NoActionBar\" />\r\n\r\n    </application>\r\n\r\n</manifest>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/AndroidManifest.xml	(date 1733808945682)
+@@ -6,7 +6,8 @@
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+-
++    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
++    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+     <!-- Configuración de la aplicación -->
+     <application
+         android:allowBackup="true"
+Index: app/src/main/java/pages/LoginPage.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package pages\r\n\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport com.tuapp.motiva3.viewmodel.TallerViewModel\r\nimport com.tuapp.motiva3.viewmodel.UsuarioViewModel\r\nimport androidx.compose.runtime.*\r\nimport androidx.compose.ui.text.input.PasswordVisualTransformation\r\n\r\n\r\n@Composable\r\nfun LoginPage(viewModel: UsuarioViewModel, onLoginSuccess: () -> Unit) {\r\n    val email = remember { mutableStateOf(\"\") }\r\n    val password = remember { mutableStateOf(\"\") }\r\n\r\n    Column(\r\n        modifier = Modifier\r\n            .fillMaxSize()\r\n            .padding(16.dp),\r\n        horizontalAlignment = Alignment.CenterHorizontally,\r\n        verticalArrangement = Arrangement.Center\r\n    ) {\r\n        Text(text = \"Iniciar Sesión\", fontSize = 32.sp, color = Color.White)\r\n\r\n        Spacer(modifier = Modifier.height(16.dp))\r\n\r\n        // Campo de Email\r\n        OutlinedTextField(\r\n            value = email.value,\r\n            onValueChange = { email.value = it },\r\n            label = { Text(\"Email\") }\r\n        )\r\n\r\n        Spacer(modifier = Modifier.height(8.dp))\r\n\r\n        // Campo de Contraseña\r\n        OutlinedTextField(\r\n            value = password.value,\r\n            onValueChange = { password.value = it },\r\n            label = { Text(\"Contraseña\") },\r\n            visualTransformation = PasswordVisualTransformation()\r\n        )\r\n\r\n        Spacer(modifier = Modifier.height(16.dp))\r\n\r\n        // Botón de Inicio de Sesión\r\n        Button(onClick = {\r\n            viewModel.login(email.value, password.value)\r\n        }) {\r\n            Text(text = \"Iniciar Sesión\")\r\n        }\r\n\r\n        // Observa el resultado del inicio de sesión\r\n        if (viewModel.loginStatus.value == true) {\r\n            onLoginSuccess() // Llama al lambda si el inicio de sesión es exitoso\r\n        } else if (viewModel.loginStatus.value == false) {\r\n            Text(text = viewModel.loginError.value ?: \"Error de inicio de sesión\", color = Color.Red)\r\n        }\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/pages/LoginPage.kt b/app/src/main/java/pages/LoginPage.kt
+--- a/app/src/main/java/pages/LoginPage.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/pages/LoginPage.kt	(date 1733356864000)
+@@ -1,6 +1,12 @@
+ package pages
+ 
++import android.provider.CalendarContract
++import androidx.compose.foundation.Image
++import androidx.compose.foundation.background
++import androidx.compose.foundation.border
+ import androidx.compose.foundation.layout.*
++import androidx.compose.foundation.shape.RoundedCornerShape
++import androidx.compose.material.icons.Icons
+ import androidx.compose.material3.*
+ import androidx.compose.runtime.Composable
+ import androidx.compose.ui.Alignment
+@@ -11,57 +17,196 @@
+ import com.tuapp.motiva3.viewmodel.TallerViewModel
+ import com.tuapp.motiva3.viewmodel.UsuarioViewModel
+ import androidx.compose.runtime.*
++import androidx.compose.ui.graphics.Brush
++import androidx.compose.ui.res.painterResource
++import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.text.input.PasswordVisualTransformation
++import com.example.motiva33.R
++
+ 
+ 
++
++
++@OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+ fun LoginPage(viewModel: UsuarioViewModel, onLoginSuccess: () -> Unit) {
+     val email = remember { mutableStateOf("") }
+     val password = remember { mutableStateOf("") }
++    val isLoading = remember { mutableStateOf(false) }
+ 
+     Column(
+         modifier = Modifier
+             .fillMaxSize()
++            .background(Brush.verticalGradient(listOf(Color(0xFF009688), Color(0xFFD0D0D0))))
+             .padding(16.dp),
+         horizontalAlignment = Alignment.CenterHorizontally,
+         verticalArrangement = Arrangement.Center
+     ) {
+-        Text(text = "Iniciar Sesión", fontSize = 32.sp, color = Color.White)
++        Text(
++            text = "Iniciar Sesión",
++            fontSize = 32.sp,
++            color = Color.White,
++            fontWeight = FontWeight.Bold
++        )
+ 
+-        Spacer(modifier = Modifier.height(16.dp))
++        Spacer(modifier = Modifier.height(32.dp))
+ 
+-        // Campo de Email
++
+         OutlinedTextField(
+             value = email.value,
+             onValueChange = { email.value = it },
+-            label = { Text("Email") }
++            label = { Text("Email", color = Color.White) },
++            singleLine = true,
++            modifier = Modifier
++                .fillMaxWidth()
++                .height(56.dp),
++            colors = TextFieldDefaults.outlinedTextFieldColors(
++                focusedBorderColor = Color(0xFFFDFCFC),
++                unfocusedBorderColor = Color.Gray,
++                focusedLabelColor = Color(0xFFFDFCFC),
++                cursorColor = Color(0xFF090909),
++                focusedTextColor = Color.White
++            ),
++            shape = RoundedCornerShape(12.dp)
+         )
+ 
+-        Spacer(modifier = Modifier.height(8.dp))
++        Spacer(modifier = Modifier.height(16.dp))
+ 
+-        // Campo de Contraseña
++
+         OutlinedTextField(
+             value = password.value,
+             onValueChange = { password.value = it },
+-            label = { Text("Contraseña") },
+-            visualTransformation = PasswordVisualTransformation()
++            label = { Text("Contraseña", color = Color.White) },
++            singleLine = true,
++            visualTransformation = PasswordVisualTransformation(),
++            modifier = Modifier
++                .fillMaxWidth()
++                .height(56.dp),
++            colors = TextFieldDefaults.outlinedTextFieldColors(
++                focusedBorderColor = Color(0xFFF0F0F1),
++                unfocusedBorderColor = Color.White,
++                focusedLabelColor = Color(0xFFEFEFEF),
++                cursorColor = Color(0xFF000000),
++                focusedTextColor =Color.White
++            ),
++            shape = RoundedCornerShape(12.dp)
+         )
+ 
+-        Spacer(modifier = Modifier.height(16.dp))
++        Spacer(modifier = Modifier.height(24.dp))
+ 
+-        // Botón de Inicio de Sesión
+-        Button(onClick = {
+-            viewModel.login(email.value, password.value)
+-        }) {
+-            Text(text = "Iniciar Sesión")
++
++        Button(
++            onClick = {
++                isLoading.value = true
++                viewModel.login(email.value, password.value)
++            },
++            modifier = Modifier
++                .fillMaxWidth()
++                .height(56.dp),
++            shape = RoundedCornerShape(12.dp),
++            colors = ButtonDefaults.buttonColors(Color(0xFF009688))
++        ) {
++            if (isLoading.value) {
++                CircularProgressIndicator(
++                    modifier = Modifier.size(24.dp),
++                    color = Color.White
++                )
++            } else {
++                Text(text = "Iniciar Sesión", color = Color.White, fontWeight = FontWeight.Bold)
++            }
+         }
+ 
+-        // Observa el resultado del inicio de sesión
++
+         if (viewModel.loginStatus.value == true) {
+-            onLoginSuccess() // Llama al lambda si el inicio de sesión es exitoso
++            LaunchedEffect(Unit) {
++                onLoginSuccess()
++            }
+         } else if (viewModel.loginStatus.value == false) {
+-            Text(text = viewModel.loginError.value ?: "Error de inicio de sesión", color = Color.Red)
++            Spacer(modifier = Modifier.height(16.dp))
++            Text(
++                text = viewModel.loginError.value ?: "Error de inicio de sesión",
++                color = Color.White,
++                fontWeight = FontWeight.Bold
++            )
+         }
+     }
+ }
+ 
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+Index: app/src/main/java/pages/BuscarTallerScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.pages\r\n\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.foundation.lazy.LazyColumn\r\nimport androidx.compose.foundation.lazy.items\r\nimport androidx.compose.material.icons.Icons\r\nimport androidx.compose.material.icons.filled.ArrowBack\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.*\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.draw.shadow\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.text.input.TextFieldValue\r\nimport androidx.navigation.NavHostController\r\nimport com.tuapp.motiva3.modelo.Taller\r\nimport com.tuapp.motiva3.viewmodel.TallerViewModel\r\nimport kotlinx.coroutines.flow.collectLatest\r\n\r\n@OptIn(ExperimentalMaterial3Api::class)\r\n@Composable\r\nfun BuscarTallerScreen(navController: NavHostController, viewModel: TallerViewModel) {\r\n    var query by remember { mutableStateOf(TextFieldValue(\"\")) }\r\n    var talleres by remember { mutableStateOf(emptyList<Taller>()) }\r\n\r\n    // Usamos LaunchedEffect para observar cambios en la búsqueda\r\n    LaunchedEffect(query.text) {\r\n        viewModel.buscarTalleres(query.text).collectLatest { resultados ->\r\n            talleres = resultados\r\n        }\r\n    }\r\n\r\n    Scaffold(\r\n        topBar = {\r\n            TopAppBar(\r\n                title = { Text(\"Buscar Taller\") },\r\n                navigationIcon = {\r\n                    IconButton(onClick = { navController.popBackStack() }) {\r\n                        Icon(Icons.Filled.ArrowBack, contentDescription = \"Back\")\r\n                    }\r\n                }\r\n            )\r\n        }\r\n    ) { innerPadding ->\r\n        Column(\r\n            modifier = Modifier\r\n                .fillMaxSize()\r\n                .padding(innerPadding)\r\n                .padding(16.dp)\r\n        ) {\r\n            TextField(\r\n                value = query,\r\n                onValueChange = { query = it },\r\n                label = { Text(\"Buscar Taller\") },\r\n                modifier = Modifier.fillMaxWidth()\r\n            )\r\n\r\n            Spacer(modifier = Modifier.height(16.dp))\r\n\r\n            LazyColumn {\r\n                items(talleres) { taller ->\r\n                    TallerItem(taller = taller, onInscribirClick = { selectedTaller ->\r\n                        viewModel.inscribirTaller(selectedTaller)\r\n                    })\r\n                }\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n@Composable\r\nfun TallerItem(taller: Taller, onInscribirClick: (Taller) -> Unit) {\r\n    var showDialog by remember { mutableStateOf(false) }\r\n\r\n    // Usamos Card para que cada taller tenga un estilo de cuadro atractivo\r\n    Card(\r\n        modifier = Modifier\r\n            .fillMaxWidth()\r\n            .padding(vertical = 8.dp)\r\n            .shadow(4.dp, shape = MaterialTheme.shapes.medium),\r\n        shape = MaterialTheme.shapes.medium,\r\n        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1)) // Fondo claro para destacar el contenido\r\n    ) {\r\n        Column(modifier = Modifier.padding(16.dp)) {\r\n            Text(\r\n                text = \"Nombre: ${taller.nombreTaller}\",\r\n                style = MaterialTheme.typography.titleMedium\r\n            )\r\n            Text(text = \"Descripción: ${taller.descripcion}\")\r\n            Text(text = \"Precio: ${taller.precio}\")\r\n            Text(text = \"Ubicación: ${taller.ubicacion}\")\r\n\r\n            Spacer(modifier = Modifier.height(8.dp))\r\n\r\n            Button(\r\n                onClick = { onInscribirClick(taller) },\r\n                modifier = Modifier.align(Alignment.End).padding(top = 4.dp),\r\n                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))\r\n            ) {\r\n                Text(\"Inscribirse\", color = Color.White)\r\n            }\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/pages/BuscarTallerScreen.kt b/app/src/main/java/pages/BuscarTallerScreen.kt
+--- a/app/src/main/java/pages/BuscarTallerScreen.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/pages/BuscarTallerScreen.kt	(date 1733449056000)
+@@ -5,41 +5,66 @@
+ import androidx.compose.foundation.lazy.items
+ import androidx.compose.material.icons.Icons
+ import androidx.compose.material.icons.filled.ArrowBack
++import androidx.compose.material.icons.filled.Search
+ import androidx.compose.material3.*
+ import androidx.compose.runtime.*
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.draw.shadow
+ import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.text.input.TextFieldValue
+ import androidx.navigation.NavHostController
+ import com.tuapp.motiva3.modelo.Taller
++import com.tuapp.motiva3.viewmodel.InscripcionViewModel
+ import com.tuapp.motiva3.viewmodel.TallerViewModel
+ import kotlinx.coroutines.flow.collectLatest
++import kotlinx.coroutines.launch
+ 
+ @OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+-fun BuscarTallerScreen(navController: NavHostController, viewModel: TallerViewModel) {
++fun BuscarTallerScreen(
++    navController: NavHostController,
++    viewModel: TallerViewModel,
++    inscripcionViewModel: InscripcionViewModel, // ViewModel para manejar inscripciones
++    usuarioId: String // ID del usuario que realiza la búsqueda
++) {
++    // Estado para la consulta de búsqueda y los resultados
+     var query by remember { mutableStateOf(TextFieldValue("")) }
+     var talleres by remember { mutableStateOf(emptyList<Taller>()) }
++    val scope = rememberCoroutineScope()
+ 
+-    // Usamos LaunchedEffect para observar cambios en la búsqueda
++    // Efecto para buscar talleres cuando cambia la consulta
+     LaunchedEffect(query.text) {
+-        viewModel.buscarTalleres(query.text).collectLatest { resultados ->
+-            talleres = resultados
++        scope.launch {
++            try {
++                viewModel.buscarTalleres(query.text).collectLatest { resultados ->
++                    talleres = resultados
++                }
++            } catch (e: Exception) {
++                // Manejo de errores
++                talleres = emptyList()
++            }
+         }
+     }
+ 
+     Scaffold(
+         topBar = {
+             TopAppBar(
+-                title = { Text("Buscar Taller") },
++                title = {
++                    Text(
++                        "Buscar Taller",
++                        style = MaterialTheme.typography.titleLarge,
++                        color = Color.White
++                    )
++                },
+                 navigationIcon = {
+                     IconButton(onClick = { navController.popBackStack() }) {
+-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
++                        Icon(Icons.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                     }
+-                }
++                },
++                colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color(0xFF009688))
+             )
+         }
+     ) { innerPadding ->
+@@ -49,20 +74,30 @@
+                 .padding(innerPadding)
+                 .padding(16.dp)
+         ) {
+-            TextField(
++            // Campo de búsqueda
++            OutlinedTextField(
+                 value = query,
+                 onValueChange = { query = it },
+-                label = { Text("Buscar Taller") },
+-                modifier = Modifier.fillMaxWidth()
++                label = { Text("Buscar Taller", color = Color(0xFF009688)) },
++                modifier = Modifier.fillMaxWidth(),
++                leadingIcon = {
++                    Icon(Icons.Filled.Search, contentDescription = "Buscar", tint = Color(0xFF009688))
++                },
++                singleLine = true
+             )
+ 
+             Spacer(modifier = Modifier.height(16.dp))
+ 
++            // Lista de talleres
+             LazyColumn {
+                 items(talleres) { taller ->
+-                    TallerItem(taller = taller, onInscribirClick = { selectedTaller ->
+-                        viewModel.inscribirTaller(selectedTaller)
+-                    })
++                    TallerItem(
++                        taller = taller,
++                        onInscribirseClick = {
++                            // Lógica para inscribirse al taller
++                            inscripcionViewModel.inscribirUsuarioEnTaller(taller.idTaller, usuarioId)
++                        }
++                    )
+                 }
+             }
+         }
+@@ -70,36 +105,43 @@
+ }
+ 
+ @Composable
+-fun TallerItem(taller: Taller, onInscribirClick: (Taller) -> Unit) {
+-    var showDialog by remember { mutableStateOf(false) }
+-
+-    // Usamos Card para que cada taller tenga un estilo de cuadro atractivo
++fun TallerItem(
++    taller: Taller,
++    onInscribirseClick: () -> Unit
++) {
+     Card(
+         modifier = Modifier
+             .fillMaxWidth()
+             .padding(vertical = 8.dp)
+             .shadow(4.dp, shape = MaterialTheme.shapes.medium),
+         shape = MaterialTheme.shapes.medium,
+-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1)) // Fondo claro para destacar el contenido
++        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1))
+     ) {
+         Column(modifier = Modifier.padding(16.dp)) {
+             Text(
+                 text = "Nombre: ${taller.nombreTaller}",
+-                style = MaterialTheme.typography.titleMedium
++                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
++                color = Color(0xFF009688)
+             )
+-            Text(text = "Descripción: ${taller.descripcion}")
+-            Text(text = "Precio: ${taller.precio}")
+-            Text(text = "Ubicación: ${taller.ubicacion}")
++            Text(text = "Descripción: ${taller.descripcion}", style = MaterialTheme.typography.bodyMedium)
++            Text(text = "Precio: ${taller.precio}", style = MaterialTheme.typography.bodyMedium)
++            Text(text = "Ubicación: ${taller.ubicacion}", style = MaterialTheme.typography.bodyMedium)
+ 
+             Spacer(modifier = Modifier.height(8.dp))
+ 
++            // Botón para inscribirse al taller
+             Button(
+-                onClick = { onInscribirClick(taller) },
+-                modifier = Modifier.align(Alignment.End).padding(top = 4.dp),
+-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
++                onClick = onInscribirseClick,
++                modifier = Modifier.align(Alignment.End),
++                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF009688))
+             ) {
+                 Text("Inscribirse", color = Color.White)
+             }
+         }
+     }
+ }
++
++
++
++
++
+Index: app/src/main/java/pages/MapaView.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package pages\r\n\r\nimport android.os.Bundle\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.*\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.platform.LocalContext\r\nimport androidx.compose.ui.text.input.TextFieldValue\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.viewinterop.AndroidView\r\n\r\nimport org.osmdroid.api.IMapController\r\nimport org.osmdroid.views.MapView\r\nimport org.osmdroid.views.overlay.Marker\r\nimport org.osmdroid.util.GeoPoint\r\nimport org.osmdroid.tileprovider.tilesource.TileSourceFactory\r\nimport kotlinx.coroutines.launch\r\n\r\n@Composable\r\nfun MapaView() {\r\n    val context = LocalContext.current\r\n    val mapView = remember { MapView(context) }\r\n    var direccion by remember { mutableStateOf(TextFieldValue(\"\")) }\r\n    var coordenadas by remember { mutableStateOf<GeoPoint?>(null) }\r\n    val scope = rememberCoroutineScope() // El scope de la corrutina\r\n\r\n    // Configurar la vista del mapa\r\n    DisposableEffect(mapView) {\r\n        mapView.setTileSource(TileSourceFactory.MAPNIK) // Configura la capa de OpenStreetMap\r\n        mapView.setMultiTouchControls(true) // Habilita el control multitáctil\r\n        mapView.controller.setZoom(10) // Configura el nivel de zoom inicial\r\n\r\n        onDispose {\r\n            mapView.onDetach()\r\n        }\r\n    }\r\n\r\n    // Layout para la UI\r\n    Column(modifier = Modifier.fillMaxSize()) {\r\n        // Campo de texto para la dirección\r\n        TextField(\r\n            value = direccion,\r\n            onValueChange = { direccion = it },\r\n            label = { Text(\"Escribe una dirección\") },\r\n            modifier = Modifier.fillMaxWidth().padding(16.dp)\r\n        )\r\n\r\n        // Botón para buscar la dirección\r\n        Button(\r\n            onClick = {\r\n                // Usar el scope para lanzar la corrutina y llamar la función suspendida\r\n                scope.launch {\r\n                    // Llamar la función para obtener las coordenadas desde la dirección\r\n                    coordenadas = obtenerCoordenadas(direccion.text)\r\n                    coordenadas?.let {\r\n                        // Si las coordenadas son válidas, actualizar el mapa\r\n                        val markerTaller = Marker(mapView)\r\n                        markerTaller.position = it\r\n                        markerTaller.title = \"Ubicación de la dirección\"\r\n                        mapView.overlays.add(markerTaller)\r\n\r\n                        // Mover el mapa al centro de la nueva ubicación\r\n                        mapView.controller.setCenter(it)\r\n                    }\r\n                }\r\n            },\r\n            modifier = Modifier.fillMaxWidth().padding(16.dp)\r\n        ) {\r\n            Text(\"Buscar Dirección\")\r\n        }\r\n\r\n        // Mostrar el mapa\r\n        AndroidView(factory = { mapView }) { mapView ->\r\n            mapView.onResume()  // Asegúrate de reanudar el mapa cuando la vista sea visible\r\n        }\r\n    }\r\n}\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/pages/MapaView.kt b/app/src/main/java/pages/MapaView.kt
+--- a/app/src/main/java/pages/MapaView.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/pages/MapaView.kt	(date 1733812095817)
+@@ -79,3 +79,4 @@
+ }
+ 
+ 
++
+Index: app/src/main/java/pages/HomePage.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.pages\r\n\r\nimport androidx.compose.foundation.Image\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.foundation.shape.RoundedCornerShape\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.draw.shadow\r\nimport androidx.compose.ui.graphics.Brush\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.text.style.TextAlign\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\n\r\nimport com.example.motiva33.R\r\nimport com.tuapp.motiva3.viewmodel.TallerViewModel\r\n\r\n\r\n\r\n\r\n\r\n@Composable\r\nfun HomePage(\r\n    viewModel: TallerViewModel,\r\n    onAgregarTallerClick: () -> Unit,\r\n    onBuscarTallerClick: () -> Unit,\r\n    onInscripcionClick: () -> Unit\r\n) {\r\n\r\n    val buttonColor = Color(0xFF009688)\r\n    val buttonTextColor = Color.White\r\n    val backgroundGradient = Brush.verticalGradient(\r\n        colors = listOf(Color(0xFF009688), Color(0xFFD0D0D0))\r\n    )\r\n\r\n    Box(\r\n        modifier = Modifier\r\n            .fillMaxSize()\r\n            .background(backgroundGradient)\r\n            .padding(16.dp),\r\n        contentAlignment = Alignment.Center\r\n    ) {\r\n\r\n        Column(\r\n            horizontalAlignment = Alignment.CenterHorizontally,\r\n            verticalArrangement = Arrangement.spacedBy(16.dp)\r\n        ) {\r\n\r\n            // Título llamativo\r\n            Text(\r\n                text = \"¡Bienvenido a Motiva3!\",\r\n                style = MaterialTheme.typography.bodyLarge.copy(\r\n                    fontSize = 32.sp,\r\n                    color = Color.White,\r\n                    textAlign = TextAlign.Center,\r\n                    fontWeight = FontWeight.Bold\r\n                ),\r\n                modifier = Modifier\r\n                    .padding(bottom = 80.dp) // Espaciado aumentado debajo del título\r\n            )\r\n\r\n            // Botones\r\n            Button(\r\n                onClick = onAgregarTallerClick,\r\n                colors = ButtonDefaults.buttonColors(buttonColor),\r\n                shape = RoundedCornerShape(12.dp),\r\n                modifier = Modifier\r\n                    .fillMaxWidth()\r\n                    .height(56.dp)\r\n                    .shadow(10.dp, RoundedCornerShape(12.dp))\r\n            ) {\r\n                Text(\"Agregar Taller\", color = buttonTextColor)\r\n            }\r\n\r\n            Button(\r\n                onClick = onBuscarTallerClick,\r\n                colors = ButtonDefaults.buttonColors(buttonColor),\r\n                shape = RoundedCornerShape(12.dp),\r\n                modifier = Modifier\r\n                    .fillMaxWidth()\r\n                    .height(56.dp)\r\n                    .shadow(10.dp, RoundedCornerShape(12.dp))\r\n            ) {\r\n                Text(\"Buscar Taller\", color = buttonTextColor)\r\n            }\r\n\r\n            Button(\r\n                onClick = { onInscripcionClick() }, // Cambia según la nueva lógica\r\n                colors = ButtonDefaults.buttonColors(buttonColor),\r\n                shape = RoundedCornerShape(12.dp),\r\n                modifier = Modifier\r\n                    .fillMaxWidth()\r\n                    .height(56.dp)\r\n                    .shadow(10.dp, RoundedCornerShape(12.dp))\r\n            ) {\r\n                Text(\"Ver Inscripciones\", color = buttonTextColor)\r\n            }\r\n\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/pages/HomePage.kt b/app/src/main/java/pages/HomePage.kt
+--- a/app/src/main/java/pages/HomePage.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/pages/HomePage.kt	(date 1733812346369)
+@@ -1,6 +1,5 @@
+ package com.tuapp.motiva3.pages
+ 
+-import androidx.compose.foundation.Image
+ import androidx.compose.foundation.background
+ import androidx.compose.foundation.layout.*
+ import androidx.compose.foundation.shape.RoundedCornerShape
+@@ -11,27 +10,20 @@
+ import androidx.compose.ui.draw.shadow
+ import androidx.compose.ui.graphics.Brush
+ import androidx.compose.ui.graphics.Color
+-import androidx.compose.ui.res.painterResource
+ import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.text.style.TextAlign
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
+-
+-import com.example.motiva33.R
+ import com.tuapp.motiva3.viewmodel.TallerViewModel
+ 
+-
+-
+-
+-
+ @Composable
+ fun HomePage(
+     viewModel: TallerViewModel,
+     onAgregarTallerClick: () -> Unit,
+     onBuscarTallerClick: () -> Unit,
+-    onInscripcionClick: () -> Unit
++    onInscripcionClick: () -> Unit,
++    onVerPerfilClick: () -> Unit // Nuevo callback para ir a la pantalla de perfil
+ ) {
+-
+     val buttonColor = Color(0xFF009688)
+     val buttonTextColor = Color.White
+     val backgroundGradient = Brush.verticalGradient(
+@@ -45,12 +37,10 @@
+             .padding(16.dp),
+         contentAlignment = Alignment.Center
+     ) {
+-
+         Column(
+             horizontalAlignment = Alignment.CenterHorizontally,
+             verticalArrangement = Arrangement.spacedBy(16.dp)
+         ) {
+-
+             // Título llamativo
+             Text(
+                 text = "¡Bienvenido a Motiva3!",
+@@ -64,7 +54,7 @@
+                     .padding(bottom = 80.dp) // Espaciado aumentado debajo del título
+             )
+ 
+-            // Botones
++            // Botón para agregar taller
+             Button(
+                 onClick = onAgregarTallerClick,
+                 colors = ButtonDefaults.buttonColors(buttonColor),
+@@ -74,9 +64,10 @@
+                     .height(56.dp)
+                     .shadow(10.dp, RoundedCornerShape(12.dp))
+             ) {
+-                Text("Agregar Taller", color = buttonTextColor)
++                Text("Agregar Taller", color = buttonTextColor, fontSize = 18.sp)
+             }
+ 
++            // Botón para buscar taller
+             Button(
+                 onClick = onBuscarTallerClick,
+                 colors = ButtonDefaults.buttonColors(buttonColor),
+@@ -86,11 +77,12 @@
+                     .height(56.dp)
+                     .shadow(10.dp, RoundedCornerShape(12.dp))
+             ) {
+-                Text("Buscar Taller", color = buttonTextColor)
++                Text("Buscar Taller", color = buttonTextColor, fontSize = 18.sp)
+             }
+ 
++            // Botón para ver inscripciones
+             Button(
+-                onClick = { onInscripcionClick() }, // Cambia según la nueva lógica
++                onClick = onInscripcionClick,
+                 colors = ButtonDefaults.buttonColors(buttonColor),
+                 shape = RoundedCornerShape(12.dp),
+                 modifier = Modifier
+@@ -98,9 +90,22 @@
+                     .height(56.dp)
+                     .shadow(10.dp, RoundedCornerShape(12.dp))
+             ) {
+-                Text("Ver Inscripciones", color = buttonTextColor)
++                Text("Ver Inscripciones", color = buttonTextColor, fontSize = 18.sp)
+             }
+ 
++            // Nuevo botón para navegar al perfil
++            Button(
++                onClick = onVerPerfilClick,
++                colors = ButtonDefaults.buttonColors(buttonColor),
++                shape = RoundedCornerShape(12.dp),
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .height(56.dp)
++                    .shadow(10.dp, RoundedCornerShape(12.dp))
++            ) {
++                Text("Ver Perfil", color = buttonTextColor, fontSize = 18.sp)
++            }
+         }
+     }
+ }
++
+Index: app/src/main/java/pages/InscripcionScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.pages\r\n\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.foundation.lazy.LazyColumn\r\nimport androidx.compose.foundation.lazy.items // Asegúrate de importar esto\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.*\r\nimport com.tuapp.motiva3.viewmodel.InscripcionViewModel\r\n\r\n@Composable\r\nfun InscripcionScreen(\r\n    inscripcionViewModel: InscripcionViewModel,\r\n    usuarioId: String\r\n) {\r\n    // Llamar al ViewModel para obtener las inscripciones de un taller\r\n    val inscripcionesState = inscripcionViewModel.obtenerInscripcionesPorTaller(tallerId = 1).collectAsState(initial = emptyList())\r\n\r\n    // Mostrar la lista de inscripciones\r\n    LazyColumn {\r\n        items(inscripcionesState.value, key = { it.idInscripcion }) { inscripcion ->  // Utilizamos 'key' para optimizar la lista\r\n            // Asegúrate de que idUsuario exista en la clase Inscripcion\r\n            Text(text = \"Usuario: ${inscripcion.idUsuario}\")\r\n\r\n            // Botón para inscribirse al taller\r\n            Button(onClick = {\r\n                // Lógica para inscribir al usuario al taller\r\n                inscripcionViewModel.inscribirUsuarioEnTaller(tallerId = 1, usuarioId = usuarioId)\r\n            }) {\r\n                Text(\"Inscribirse\")\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/pages/InscripcionScreen.kt b/app/src/main/java/pages/InscripcionScreen.kt
+--- a/app/src/main/java/pages/InscripcionScreen.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/pages/InscripcionScreen.kt	(date 1733493512000)
+@@ -2,35 +2,112 @@
+ 
+ import androidx.compose.foundation.layout.*
+ import androidx.compose.foundation.lazy.LazyColumn
+-import androidx.compose.foundation.lazy.items // Asegúrate de importar esto
++import androidx.compose.foundation.lazy.items
++import androidx.compose.material.icons.Icons
++import androidx.compose.material.icons.filled.ArrowBack
+ import androidx.compose.material3.*
+ import androidx.compose.runtime.*
++import androidx.compose.runtime.livedata.observeAsState
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.unit.dp
++import androidx.navigation.NavHostController
++import com.tuapp.motiva3.modelo.InscripcionConTaller
+ import com.tuapp.motiva3.viewmodel.InscripcionViewModel
+ 
++@OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+ fun InscripcionScreen(
++    navController: NavHostController,
+     inscripcionViewModel: InscripcionViewModel,
+     usuarioId: String
+ ) {
+-    // Llamar al ViewModel para obtener las inscripciones de un taller
+-    val inscripcionesState = inscripcionViewModel.obtenerInscripcionesPorTaller(tallerId = 1).collectAsState(initial = emptyList())
++    // Se obtiene la lista de inscripciones desde el ViewModel
++    val inscripciones by inscripcionViewModel.getInscripcionesConTaller(usuarioId).observeAsState(emptyList())
++
++    // Estado para el Snackbar
++    val snackbarHostState = remember { SnackbarHostState() }
+ 
+-    // Mostrar la lista de inscripciones
+-    LazyColumn {
+-        items(inscripcionesState.value, key = { it.idInscripcion }) { inscripcion ->  // Utilizamos 'key' para optimizar la lista
+-            // Asegúrate de que idUsuario exista en la clase Inscripcion
+-            Text(text = "Usuario: ${inscripcion.idUsuario}")
+-
+-            // Botón para inscribirse al taller
+-            Button(onClick = {
+-                // Lógica para inscribir al usuario al taller
+-                inscripcionViewModel.inscribirUsuarioEnTaller(tallerId = 1, usuarioId = usuarioId)
+-            }) {
+-                Text("Inscribirse")
+-            }
+-        }
+-    }
+-}
++    // Estado para gestionar el éxito de inscripción
++    var inscripcionExitosa by remember { mutableStateOf(false) }
++
++    // Estado para los mensajes de error
++    var mensajeError by remember { mutableStateOf<String?>(null) }
++
++    Scaffold(
++        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
++        topBar = {
++            TopAppBar(
++                title = { Text("Inscripciones", color = Color.White) },
++                colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color(0xFF009688)),
++                navigationIcon = {
++                    IconButton(onClick = { navController.popBackStack() }) {
++                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
++                    }
++                }
++            )
++        }
++    ) { innerPadding ->
++        Column(
++            modifier = Modifier
++                .fillMaxSize()
++                .padding(innerPadding)
++                .padding(16.dp)
++        ) {
++            Text(
++                text = "Tus Inscripciones",
++                style = MaterialTheme.typography.titleLarge,
++                color = Color(0xFF009688)
++            )
++
++            Spacer(modifier = Modifier.height(16.dp))
++
++            // Lista de inscripciones
++            LazyColumn {
++                items(inscripciones) { inscripcion ->
++                    InscripcionCard(inscripcion)
++                }
++            }
++        }
++    }
+ 
++    // Mostrar mensaje de éxito de inscripción
++    if (inscripcionExitosa) {
++        LaunchedEffect(Unit) {
++            snackbarHostState.showSnackbar("Inscripción exitosa!")
++            inscripcionExitosa = false
++        }
++    }
+ 
++    // Mostrar mensaje de error
++    if (mensajeError != null) {
++        LaunchedEffect("error") {
++            snackbarHostState.showSnackbar(mensajeError ?: "")
++            mensajeError = null
++        }
++    }
++}
+ 
++@Composable
++fun InscripcionCard(inscripcion: InscripcionConTaller) {
++    // Componente de tarjeta para mostrar cada inscripción
++    Card(
++        modifier = Modifier
++            .fillMaxWidth()
++            .padding(vertical = 8.dp),
++        shape = MaterialTheme.shapes.medium,
++        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1))
++    ) {
++        Column(modifier = Modifier.padding(16.dp)) {
++            Text(
++                text = "Taller: ${inscripcion.nombreTaller}",
++                style = MaterialTheme.typography.bodyLarge,
++                color = Color(0xFF009688)
++            )
++            Text(
++                text = "Ubicación: ${inscripcion.ubicacionTaller}",
++                style = MaterialTheme.typography.bodyMedium
++            )
++        }
++    }
++}
+Index: app/src/main/java/pages/NavGraph.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.navigation\r\n\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.navigation.NavHostController\r\nimport androidx.navigation.compose.NavHost\r\nimport androidx.navigation.compose.composable\r\nimport androidx.navigation.compose.rememberNavController\r\nimport com.tuapp.motiva3.pages.AgregarTallerScreen\r\nimport com.tuapp.motiva3.pages.BuscarTallerScreen\r\nimport com.tuapp.motiva3.pages.HomePage\r\nimport com.tuapp.motiva3.pages.InscripcionScreen\r\nimport com.tuapp.motiva3.viewmodel.InscripcionViewModel\r\nimport com.tuapp.motiva3.viewmodel.TallerViewModel\r\nimport com.tuapp.motiva3.viewmodel.UsuarioViewModel\r\nimport pages.LoginPage\r\nimport androidx.lifecycle.viewmodel.compose.viewModel\r\n\r\n@Composable\r\nfun NavGraph(\r\n    navController: NavHostController,\r\n    viewModel: TallerViewModel,\r\n    usuarioViewModel: UsuarioViewModel,\r\n    inscripcionViewModel: InscripcionViewModel,\r\n    onInscripcionClick: () -> Unit // Manejo del clic para inscripciones\r\n) {\r\n    // Define el NavHost que maneja la navegación\r\n    NavHost(navController = navController, startDestination = \"login\") {\r\n        // Pantalla de Login\r\n        composable(\"login\") {\r\n            LoginPage(\r\n                viewModel = usuarioViewModel,\r\n                onLoginSuccess = {\r\n\r\n                    if (navController.currentBackStackEntry?.destination?.route != \"home\") {\r\n                        navController.navigate(\"home\") {\r\n                            // Limpiar el back stack para que no se pueda regresar al login\r\n                            popUpTo(\"login\") { inclusive = true }\r\n                        }\r\n                    }\r\n                }\r\n            )\r\n        }\r\n\r\n        // Pantalla de Home\r\n        composable(\"home\") {\r\n            HomePage(\r\n                viewModel = viewModel,\r\n                onAgregarTallerClick = {\r\n                    navController.navigate(\"agregar_taller\") // Navegar a agregar taller\r\n                },\r\n                onBuscarTallerClick = {\r\n                    navController.navigate(\"buscar_taller\") // Navegar a buscar taller\r\n                },\r\n                onInscripcionClick = onInscripcionClick // Se pasa el parámetro aquí\r\n            )\r\n        }\r\n\r\n        // Pantalla para agregar un taller\r\n        composable(\"agregar_taller\") {\r\n            AgregarTallerScreen(navController, viewModel)\r\n        }\r\n\r\n        // Pantalla para buscar un taller\r\n        composable(\"buscar_taller\") {\r\n            BuscarTallerScreen(navController, viewModel)\r\n        }\r\n\r\n        // Pantalla para inscripciones\r\n        composable(\"inscripcion\") {\r\n            InscripcionScreen(\r\n                inscripcionViewModel = inscripcionViewModel,  // Aquí pasa el InscripcionViewModel\r\n                usuarioId = \"user_id_here\" // O un ID real para el usuario\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/pages/NavGraph.kt b/app/src/main/java/pages/NavGraph.kt
+--- a/app/src/main/java/pages/NavGraph.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/pages/NavGraph.kt	(date 1733812566008)
+@@ -1,42 +1,38 @@
+ package com.tuapp.motiva3.navigation
+ 
+-import androidx.compose.material3.*
++import ProfileScreen
++import androidx.compose.material3.Text
+ import androidx.compose.runtime.Composable
++import androidx.compose.ui.platform.LocalContext
+ import androidx.navigation.NavHostController
+ import androidx.navigation.compose.NavHost
+ import androidx.navigation.compose.composable
+-import androidx.navigation.compose.rememberNavController
+-import com.tuapp.motiva3.pages.AgregarTallerScreen
+-import com.tuapp.motiva3.pages.BuscarTallerScreen
+-import com.tuapp.motiva3.pages.HomePage
+-import com.tuapp.motiva3.pages.InscripcionScreen
++import com.tuapp.motiva3.pages.*
+ import com.tuapp.motiva3.viewmodel.InscripcionViewModel
+ import com.tuapp.motiva3.viewmodel.TallerViewModel
+ import com.tuapp.motiva3.viewmodel.UsuarioViewModel
+ import pages.LoginPage
+-import androidx.lifecycle.viewmodel.compose.viewModel
+ 
+ @Composable
+ fun NavGraph(
+     navController: NavHostController,
+     viewModel: TallerViewModel,
+     usuarioViewModel: UsuarioViewModel,
+-    inscripcionViewModel: InscripcionViewModel,
+-    onInscripcionClick: () -> Unit // Manejo del clic para inscripciones
++    inscripcionViewModel: InscripcionViewModel
+ ) {
+-    // Define el NavHost que maneja la navegación
+-    NavHost(navController = navController, startDestination = "login") {
++    val userId = usuarioViewModel.getUserId()  // Obtener el userId desde UsuarioViewModel
++
++    NavHost(
++        navController = navController,
++        startDestination = "login" // Pantalla inicial
++    ) {
+         // Pantalla de Login
+         composable("login") {
+             LoginPage(
+                 viewModel = usuarioViewModel,
+                 onLoginSuccess = {
+-
+-                    if (navController.currentBackStackEntry?.destination?.route != "home") {
+-                        navController.navigate("home") {
+-                            // Limpiar el back stack para que no se pueda regresar al login
+-                            popUpTo("login") { inclusive = true }
+-                        }
++                    navController.navigate("home") {
++                        popUpTo("login") { inclusive = true }
+                     }
+                 }
+             )
+@@ -47,31 +43,60 @@
+             HomePage(
+                 viewModel = viewModel,
+                 onAgregarTallerClick = {
+-                    navController.navigate("agregar_taller") // Navegar a agregar taller
++                    navController.navigate("agregar_taller")
+                 },
+                 onBuscarTallerClick = {
+-                    navController.navigate("buscar_taller") // Navegar a buscar taller
++                    navController.navigate("buscar_taller")
++                },
++                onInscripcionClick = {
++                    if (userId != null) {
++                        navController.navigate("inscripcion/$userId")  // Navegar con el userId
++                    } else {
++                        navController.navigate("login")  // Si no está autenticado, navegar al login
++                    }
+                 },
+-                onInscripcionClick = onInscripcionClick // Se pasa el parámetro aquí
++                onVerPerfilClick = {
++                    navController.navigate("profile")  // Navegar a la pantalla de perfil
++                }
+             )
+         }
+ 
+-        // Pantalla para agregar un taller
++        // Ruta para la pantalla de perfil
++        composable("profile") {
++            ProfileScreen(
++                usuarioViewModel = usuarioViewModel,
++                navController = navController,
++                context = LocalContext.current // Si necesitas el contexto para abrir el selector de imágenes
++            )
++        }
++
++        // Pantalla de Agregar Taller
+         composable("agregar_taller") {
+-            AgregarTallerScreen(navController, viewModel)
++            AgregarTallerScreen(navController = navController, viewModel = viewModel)
+         }
+ 
+-        // Pantalla para buscar un taller
++        // Pantalla de Buscar Taller
+         composable("buscar_taller") {
+-            BuscarTallerScreen(navController, viewModel)
++            BuscarTallerScreen(
++                navController = navController,
++                viewModel = viewModel,
++                inscripcionViewModel = inscripcionViewModel,
++                usuarioId = userId.orEmpty()
++            )
+         }
+ 
+-        // Pantalla para inscripciones
+-        composable("inscripcion") {
+-            InscripcionScreen(
+-                inscripcionViewModel = inscripcionViewModel,  // Aquí pasa el InscripcionViewModel
+-                usuarioId = "user_id_here" // O un ID real para el usuario
+-            )
++        // Pantalla de Inscripción con el parámetro usuarioId
++        composable("inscripcion/{usuarioId}") { backStackEntry ->
++            val usuarioId = backStackEntry.arguments?.getString("usuarioId")
++            if (usuarioId != null) {
++                InscripcionScreen(
++                    navController = navController,
++                    inscripcionViewModel = inscripcionViewModel,
++                    usuarioId = usuarioId
++                )
++            } else {
++                Text("Error: No se pudo obtener el usuarioId.")
++            }
+         }
+     }
+ }
+Index: app/src/main/java/database/TallerRepository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.database\r\n\r\nimport com.tuapp.motiva3.modelo.Taller\r\nimport kotlinx.coroutines.flow.Flow\r\nimport kotlinx.coroutines.flow.StateFlow\r\n\r\nclass TallerRepository(private val tallerDao: TallerDao) {\r\n    suspend fun insertarTaller(taller: Taller) {\r\n        tallerDao.insertarTaller(taller)\r\n    }\r\n\r\n    fun obtenerTalleres(): Flow<List<Taller>> {\r\n        return tallerDao.obtenerTalleres()\r\n    }\r\n\r\n    suspend fun eliminarTallerPorId(tallerId: Int) {\r\n        tallerDao.eliminarTallerPorId(tallerId)\r\n    }\r\n\r\n    fun buscarTalleres(query: String): Flow<List<Taller>> {\r\n        return tallerDao.buscarTalleres(query)\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/database/TallerRepository.kt b/app/src/main/java/database/TallerRepository.kt
+--- a/app/src/main/java/database/TallerRepository.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/database/TallerRepository.kt	(date 1732566962000)
+@@ -9,6 +9,11 @@
+         tallerDao.insertarTaller(taller)
+     }
+ 
++    suspend fun editarTaller(taller: Taller) {
++        // Lógica para actualizar el taller en la base de datos.
++
++
++    }
+     fun obtenerTalleres(): Flow<List<Taller>> {
+         return tallerDao.obtenerTalleres()
+     }
+@@ -20,4 +25,4 @@
+     fun buscarTalleres(query: String): Flow<List<Taller>> {
+         return tallerDao.buscarTalleres(query)
+     }
+-}
++}
+\ No newline at end of file
+Index: app/src/main/java/database/TallerDatabase.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.database\r\n\r\nimport android.content.Context\r\nimport androidx.room.Database\r\nimport androidx.room.Room\r\nimport androidx.room.RoomDatabase\r\nimport com.tuapp.motiva3.Usuario\r\nimport com.tuapp.motiva3.modelo.Inscripciones\r\nimport com.tuapp.motiva3.modelo.Taller\r\nimport com.tuapp.motiva33.database.InscripcionDao\r\n\r\n@Database(entities = [Usuario::class, Taller::class, Inscripciones::class], version = 2)  // Actualiza la versión aquí\r\nabstract class TallerDatabase : RoomDatabase() {\r\n\r\n    abstract fun usuarioDao(): UsuarioDao\r\n    abstract fun tallerDao(): TallerDao\r\n    abstract fun inscripcionDao(): InscripcionDao  // DAO para Inscripciones\r\n\r\n    companion object {\r\n        @Volatile\r\n        private var INSTANCE: TallerDatabase? = null\r\n\r\n        fun getDatabase(context: Context): TallerDatabase {\r\n            return INSTANCE ?: synchronized(this) {\r\n                val instance = Room.databaseBuilder(\r\n                    context.applicationContext,\r\n                    TallerDatabase::class.java,\r\n                    \"taller_database\"\r\n                )\r\n                    .fallbackToDestructiveMigration()  // Esto elimina la base de datos si cambia la versión\r\n                    .build()\r\n                INSTANCE = instance\r\n                instance\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/database/TallerDatabase.kt b/app/src/main/java/database/TallerDatabase.kt
+--- a/app/src/main/java/database/TallerDatabase.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/database/TallerDatabase.kt	(date 1732567026000)
+@@ -7,7 +7,7 @@
+ import com.tuapp.motiva3.Usuario
+ import com.tuapp.motiva3.modelo.Inscripciones
+ import com.tuapp.motiva3.modelo.Taller
+-import com.tuapp.motiva33.database.InscripcionDao
++
+ 
+ @Database(entities = [Usuario::class, Taller::class, Inscripciones::class], version = 2)  // Actualiza la versión aquí
+ abstract class TallerDatabase : RoomDatabase() {
+Index: app/src/main/java/Viewmodel/UsuarioViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.viewmodel\r\n\r\nimport androidx.compose.runtime.mutableStateOf\r\nimport androidx.lifecycle.ViewModel\r\nimport com.google.firebase.auth.FirebaseAuth\r\nimport com.google.firebase.auth.AuthCredential\r\n\r\nclass UsuarioViewModel : ViewModel() {\r\n    private val auth: FirebaseAuth = FirebaseAuth.getInstance()\r\n\r\n    var loginStatus = mutableStateOf<Boolean?>(null)\r\n    var loginError = mutableStateOf<String?>(null)\r\n\r\n    // Login tradicional con email y contraseña\r\n    fun login(email: String, password: String) {\r\n        auth.signInWithEmailAndPassword(email, password)\r\n            .addOnCompleteListener { task ->\r\n                if (task.isSuccessful) {\r\n                    loginStatus.value = true\r\n                } else {\r\n                    loginStatus.value = false\r\n                    loginError.value = task.exception?.message\r\n                }\r\n            }\r\n    }\r\n\r\n    // Login con Google\r\n    fun signInWithGoogleCredential(credential: AuthCredential, onSuccess: () -> Unit) {\r\n        auth.signInWithCredential(credential)\r\n            .addOnCompleteListener { task ->\r\n                if (task.isSuccessful) {\r\n                    loginStatus.value = true\r\n                    onSuccess()  // Llamar al callback de éxito después de login exitoso\r\n                } else {\r\n                    loginStatus.value = false\r\n                    loginError.value = task.exception?.message\r\n                }\r\n            }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/Viewmodel/UsuarioViewModel.kt b/app/src/main/java/Viewmodel/UsuarioViewModel.kt
+--- a/app/src/main/java/Viewmodel/UsuarioViewModel.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/Viewmodel/UsuarioViewModel.kt	(date 1732567244000)
+@@ -37,4 +37,9 @@
+                 }
+             }
+     }
++
++    // Obtener el UID del usuario autenticado
++    fun getUserId(): String? {
++        return auth.currentUser?.uid
++    }
+ }
+Index: app/src/main/java/database/InscripcionDao.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva33.database\r\n\r\nimport androidx.room.*\r\nimport com.tuapp.motiva3.modelo.Inscripciones\r\n\r\n@Dao\r\ninterface InscripcionesDao {\r\n\r\n    @Insert(onConflict = OnConflictStrategy.REPLACE)\r\n    suspend fun agregarInscripcion(inscripcion: Inscripciones)\r\n\r\n    @Query(\"SELECT * FROM Inscripciones WHERE idUsuario = :idUsuario\")\r\n    suspend fun obtenerInscripcionesPorUsuario(idUsuario: String): List<Inscripciones>\r\n\r\n    @Delete\r\n    suspend fun eliminarInscripcion(inscripcion: Inscripciones)\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/database/InscripcionDao.kt b/app/src/main/java/database/InscripcionDao.kt
+--- a/app/src/main/java/database/InscripcionDao.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/database/InscripcionDao.kt	(date 1733494292000)
+@@ -1,17 +1,49 @@
+-package com.tuapp.motiva33.database
++package com.tuapp.motiva3.database
+ 
+-import androidx.room.*
++import androidx.lifecycle.LiveData
++import androidx.room.Dao
++import androidx.room.Insert
++import androidx.room.Query
++import androidx.room.Transaction
++import com.tuapp.motiva3.modelo.InscripcionConTaller
+ import com.tuapp.motiva3.modelo.Inscripciones
++import kotlinx.coroutines.flow.Flow
+ 
+ @Dao
+-interface InscripcionesDao {
++interface InscripcionDao {
++
++    // Insertar una inscripción
++    @Insert
++    suspend fun insertarInscripcion(inscripcion: Inscripciones)
+ 
+-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+-    suspend fun agregarInscripcion(inscripcion: Inscripciones)
++    // Obtener inscripciones por taller
++    @Query("SELECT * FROM inscripciones WHERE idTaller = :tallerId")
++    fun getInscripcionesPorTaller(tallerId: Int): Flow<List<Inscripciones>>
+ 
+-    @Query("SELECT * FROM Inscripciones WHERE idUsuario = :idUsuario")
+-    suspend fun obtenerInscripcionesPorUsuario(idUsuario: String): List<Inscripciones>
++    // Obtener inscripciones por usuario
++    @Query("SELECT * FROM inscripciones WHERE idUsuario = :usuarioId")
++    fun obtenerInscripcionesPorUsuario(usuarioId: String): Flow<List<Inscripciones>>
+ 
+-    @Delete
+-    suspend fun eliminarInscripcion(inscripcion: Inscripciones)
++    // Verificar si existe una inscripción para un usuario en un taller
++    @Query("SELECT COUNT(*) > 0 FROM inscripciones WHERE idUsuario = :usuarioId AND idTaller = :tallerId")
++    suspend fun existeInscripcion(usuarioId: String, tallerId: Int): Boolean
++
++    // Obtener inscripciones con detalles del taller
++    @Transaction
++    @Query(
++        """
++        SELECT 
++            inscripciones.idInscripcion, 
++            inscripciones.idUsuario, 
++            inscripciones.idTaller, 
++            talleres.NombreTaller,  
++            talleres.Ubicacion
++        FROM inscripciones 
++        INNER JOIN talleres 
++            ON inscripciones.idTaller = talleres.ID_Taller
++        WHERE inscripciones.idUsuario = :usuarioId
++        """
++    )
++    fun obtenerInscripcionesConTaller(usuarioId: String): LiveData<List<InscripcionConTaller>>
++
+ }
+Index: gradle/libs.versions.toml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>[versions]\r\nagp = \"8.6.0\"\r\nkotlin = \"1.9.0\"\r\ncoreKtx = \"1.13.1\"\r\njunit = \"4.13.2\"\r\njunitVersion = \"1.2.1\"\r\nespressoCore = \"3.6.1\"\r\nlifecycleRuntimeKtx = \"2.8.7\"\r\nactivityCompose = \"1.9.3\"\r\ncomposeBom = \"2024.04.01\"\r\nroomCommon = \"2.6.1\"\r\nappcompat = \"1.7.0\"\r\nstorage = \"1.5.0\"\r\n\r\n[libraries]\r\nandroidx-core-ktx = { group = \"androidx.core\", name = \"core-ktx\", version.ref = \"coreKtx\" }\r\njunit = { group = \"junit\", name = \"junit\", version.ref = \"junit\" }\r\nandroidx-junit = { group = \"androidx.test.ext\", name = \"junit\", version.ref = \"junitVersion\" }\r\nandroidx-espresso-core = { group = \"androidx.test.espresso\", name = \"espresso-core\", version.ref = \"espressoCore\" }\r\nandroidx-lifecycle-runtime-ktx = { group = \"androidx.lifecycle\", name = \"lifecycle-runtime-ktx\", version.ref = \"lifecycleRuntimeKtx\" }\r\nandroidx-activity-compose = { group = \"androidx.activity\", name = \"activity-compose\", version.ref = \"activityCompose\" }\r\nandroidx-compose-bom = { group = \"androidx.compose\", name = \"compose-bom\", version.ref = \"composeBom\" }\r\nandroidx-ui = { group = \"androidx.compose.ui\", name = \"ui\" }\r\nandroidx-ui-graphics = { group = \"androidx.compose.ui\", name = \"ui-graphics\" }\r\nandroidx-ui-tooling = { group = \"androidx.compose.ui\", name = \"ui-tooling\" }\r\nandroidx-ui-tooling-preview = { group = \"androidx.compose.ui\", name = \"ui-tooling-preview\" }\r\nandroidx-ui-test-manifest = { group = \"androidx.compose.ui\", name = \"ui-test-manifest\" }\r\nandroidx-ui-test-junit4 = { group = \"androidx.compose.ui\", name = \"ui-test-junit4\" }\r\nandroidx-material3 = { group = \"androidx.compose.material3\", name = \"material3\" }\r\nandroidx-room-common = { group = \"androidx.room\", name = \"room-common\", version.ref = \"roomCommon\" }\r\nandroidx-appcompat = { group = \"androidx.appcompat\", name = \"appcompat\", version.ref = \"appcompat\" }\r\nandroidx-storage = { group = \"androidx.test.services\", name = \"storage\", version.ref = \"storage\" }\r\n\r\n[plugins]\r\nandroid-application = { id = \"com.android.application\", version.ref = \"agp\" }\r\nkotlin-android = { id = \"org.jetbrains.kotlin.android\", version.ref = \"kotlin\" }\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+--- a/gradle/libs.versions.toml	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/gradle/libs.versions.toml	(date 1733495146000)
+@@ -11,6 +11,7 @@
+ roomCommon = "2.6.1"
+ appcompat = "1.7.0"
+ storage = "1.5.0"
++playServicesMaps = "19.0.0"
+ 
+ [libraries]
+ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+@@ -30,6 +31,7 @@
+ androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+ androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
++play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+ 
+ [plugins]
+ android-application = { id = "com.android.application", version.ref = "agp" }
+Index: app/src/main/java/database/TallerDao.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.database\r\n\r\n\r\nimport androidx.room.Dao\r\nimport androidx.room.Insert\r\nimport androidx.room.OnConflictStrategy\r\nimport androidx.room.Query\r\n\r\nimport com.tuapp.motiva3.modelo.Taller\r\nimport kotlinx.coroutines.flow.Flow\r\n\r\n@Dao\r\ninterface TallerDao {\r\n    @Insert(onConflict = OnConflictStrategy.REPLACE)\r\n    suspend fun insertarTaller(taller: Taller)\r\n\r\n    @Query(\"SELECT * FROM talleres\")\r\n    fun obtenerTalleres(): Flow<List<Taller>>\r\n\r\n    @Query(\"DELETE FROM talleres WHERE ID_Taller = :tallerId\")\r\n    suspend fun eliminarTallerPorId(tallerId: Int)\r\n\r\n    @Query(\"SELECT * FROM talleres WHERE nombreTaller LIKE '%' || :query || '%'\")\r\n    fun buscarTalleres(query: String): Flow<List<Taller>>\r\n    @Query(\"SELECT * FROM talleres\")\r\n    fun obtenerTodosLosTalleres(): Flow<List<Taller>>\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/database/TallerDao.kt b/app/src/main/java/database/TallerDao.kt
+--- a/app/src/main/java/database/TallerDao.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/database/TallerDao.kt	(date 1733450596000)
+@@ -5,6 +5,7 @@
+ import androidx.room.Insert
+ import androidx.room.OnConflictStrategy
+ import androidx.room.Query
++import com.tuapp.motiva3.modelo.Inscripciones
+ 
+ import com.tuapp.motiva3.modelo.Taller
+ import kotlinx.coroutines.flow.Flow
+@@ -14,6 +15,16 @@
+     @Insert(onConflict = OnConflictStrategy.REPLACE)
+     suspend fun insertarTaller(taller: Taller)
+ 
++    @Query("SELECT * FROM talleres")  // Asegúrate de que la consulta sea correcta
++    fun getAllTalleres(): Flow<List<Taller>>
++    // Obtener inscripciones por taller
++    @Query("SELECT * FROM inscripciones WHERE idTaller = :tallerId")
++    fun getInscripcionesPorTaller(tallerId: Int): Flow<List<Inscripciones>>
++
++    // Obtener los talleres en los que un usuario está inscrito
++    @Query("SELECT * FROM inscripciones WHERE idUsuario = :usuarioId")
++    fun getTalleresPorUsuario(usuarioId: String): Flow<List<Inscripciones>>
++
+     @Query("SELECT * FROM talleres")
+     fun obtenerTalleres(): Flow<List<Taller>>
+ 
+Index: app/src/main/java/database/InscripcionRepository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.tuapp.motiva3.database\r\n\r\nimport com.tuapp.motiva3.modelo.Inscripciones\r\nimport com.tuapp.motiva33.database.InscripcionDao\r\nimport kotlinx.coroutines.flow.Flow\r\n\r\nclass InscripcionRepository(private val inscripcionDao: InscripcionDao) {\r\n\r\n    // Método para insertar una inscripción\r\n    suspend fun insertarInscripcion(inscripcion: Inscripciones) {\r\n        inscripcionDao.insertarInscripcion(inscripcion)\r\n    }\r\n\r\n    // Obtener inscripciones por taller\r\n    fun obtenerInscripcionesPorTaller(tallerId: Int): Flow<List<Inscripciones>> {\r\n        return inscripcionDao.getInscripcionesPorTaller(tallerId)  // Debería devolver un Flow\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/database/InscripcionRepository.kt b/app/src/main/java/database/InscripcionRepository.kt
+--- a/app/src/main/java/database/InscripcionRepository.kt	(revision 69427cb0c8ea1d53db0f7241d3af72c20f1de606)
++++ b/app/src/main/java/database/InscripcionRepository.kt	(date 1733493172000)
+@@ -1,19 +1,35 @@
+ package com.tuapp.motiva3.database
+ 
++import androidx.lifecycle.LiveData
++import com.tuapp.motiva3.modelo.InscripcionConTaller
+ import com.tuapp.motiva3.modelo.Inscripciones
+-import com.tuapp.motiva33.database.InscripcionDao
+ import kotlinx.coroutines.flow.Flow
+ 
+ class InscripcionRepository(private val inscripcionDao: InscripcionDao) {
+ 
+-    // Método para insertar una inscripción
++    // Insertar una inscripción
+     suspend fun insertarInscripcion(inscripcion: Inscripciones) {
+         inscripcionDao.insertarInscripcion(inscripcion)
+     }
+ 
+     // Obtener inscripciones por taller
+     fun obtenerInscripcionesPorTaller(tallerId: Int): Flow<List<Inscripciones>> {
+-        return inscripcionDao.getInscripcionesPorTaller(tallerId)  // Debería devolver un Flow
++        return inscripcionDao.getInscripcionesPorTaller(tallerId)
++    }
++
++    // Verificar si un usuario ya está inscrito en un taller específico
++    suspend fun existeInscripcion(usuarioId: String, tallerId: Int): Boolean {
++        return inscripcionDao.existeInscripcion(usuarioId, tallerId)
++    }
++
++    // Obtener inscripciones por usuario
++    fun obtenerInscripcionesPorUsuario(usuarioId: String): Flow<List<Inscripciones>> {
++        return inscripcionDao.obtenerInscripcionesPorUsuario(usuarioId)
++    }
++
++    // Obtener inscripciones con detalles del taller
++    fun obtenerInscripcionesConTaller(usuarioId: String): LiveData<List<InscripcionConTaller>> {
++        return inscripcionDao.obtenerInscripcionesConTaller(usuarioId)
+     }
+ }
+ 
