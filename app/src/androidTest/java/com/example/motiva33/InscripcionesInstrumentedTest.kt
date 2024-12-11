@@ -1,6 +1,5 @@
 package com.example.motiva33
 
-import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.tuapp.motiva3.database.TallerDatabase
@@ -41,9 +40,6 @@ class InscripcionesInstrumentedTest {
 
         // Recuperar todas las inscripciones
         val inscripciones = db.inscripcionDao().getAll()
-
-        // Log para verificar las inscripciones recuperadas
-        Log.d("InscripcionTest", "Inscripciones recuperadas de la base de datos: $inscripciones")
 
         // Verificar que se haya guardado y recuperado correctamente
         assertEquals(1, inscripciones.size) // Ahora debería haber solo una inscripción
